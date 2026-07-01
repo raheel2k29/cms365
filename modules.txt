@@ -1,0 +1,129 @@
+┌────────────────────────────────────────────┐
+│           PHASE 1 - PROJECT SETUP          │
+├────────────────────────────────────────────┤
+│ • Laravel 12 Setup                         │
+│ • Authentication                           │
+│ • User Roles                               │
+│ • Dashboard Layout                         │
+│ • Sidebar Navigation                       │
+│ • Database Design                          │
+│ • Core Models & Relationships              │
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────┐
+│       PHASE 2 - MASTER DATA MODULES        │
+├────────────────────────────────────────────┤
+│ • Companies                               │
+│ • Customer Contacts                       │
+│ • Vendors / Factories                     │
+│ • CRUD Operations                         │
+│ • Search & Filters                        │
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────┐
+│      PHASE 3 - QUOTE MANAGEMENT           │
+├────────────────────────────────────────────┤
+│ • Quote Creation                          │
+│ • Quote Status Workflow                   │
+│ • Quote Details                           │
+│ • Quote Timeline                          │
+│ • Internal Notes                          │
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────┐
+│       PHASE 4 - QUOTE BUILDER             │
+├────────────────────────────────────────────┤
+│ • Line Items                              │
+│ • Qty                                     │
+│ • Cost Price                              │
+│ • Selling Price                           │
+│ • Margin Calculation                      │
+│ • Totals                                  │
+│ • PDF Quote Generation                    │
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────┐
+│     PHASE 5 - OUTLOOK INTEGRATION         │
+├────────────────────────────────────────────┤
+│ • Microsoft Graph API                     │
+│ • OAuth Authentication                    │
+│ • Shared Mailbox                          │
+│ • Read Emails                             │
+│ • Send Emails                             │
+│ • Download Attachments                    │
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────┐
+│      PHASE 6 - EMAIL THREADING            │
+├────────────────────────────────────────────┤
+│ Customer Thread                           │
+│   ├── RFQ                                 │
+│   ├── Replies                             │
+│   └── Attachments                         │
+│                                            │
+│ Vendor Thread                             │
+│   ├── Quote Requests                      │
+│   ├── Vendor Replies                      │
+│   └── Attachments                         │
+│                                            │
+│ Internal Notes                            │
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────┐
+│      PHASE 7 - RFQ WORKFLOW               │
+├────────────────────────────────────────────┤
+│ Customer RFQ                              │
+│        │                                  │
+│ Create Quote                              │
+│        │                                  │
+│ Send RFQ To Vendors                       │
+│        │                                  │
+│ Vendor Pricing                            │
+│        │                                  │
+│ Build Customer Quote                      │
+│        │                                  │
+│ Send Quote                                │
+│        │                                  │
+│ Won / Lost                                │
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────┐
+│      PHASE 8 - DASHBOARD                  │
+├────────────────────────────────────────────┤
+│ • Open Quotes                             │
+│ • Pending Vendor Quotes                   │
+│ • Quotes Sent                             │
+│ • Won Quotes                              │
+│ • Lost Quotes                             │
+│ • Recent Activity                         │
+│ • Pipeline Value                          │
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────┐
+│      PHASE 9 - REPORTING                  │
+├────────────────────────────────────────────┤
+│ • Sales Summary                           │
+│ • Conversion Rate                         │
+│ • Gross Margin                            │
+│ • CSV Export                              │
+│ • Date Filters                            │
+└────────────────────────────────────────────┘
+                     │
+                     ▼
+┌────────────────────────────────────────────┐
+│     PHASE 10 - QA & DEPLOYMENT            │
+├────────────────────────────────────────────┤
+│ • Testing                                 │
+│ • Bug Fixes                               │
+│ • Permissions                             │
+│ • Performance                             │
+│ • Deployment                              │
+└────────────────────────────────────────────┘
