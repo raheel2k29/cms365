@@ -67,3 +67,14 @@ Route::get('/setup-db', function () {
         return 'Error: ' . $e->getMessage();
     }
 });
+
+
+Route::get('/debug-env', function () {
+    return response()->json([
+        'DB_CONNECTION' => env('DB_CONNECTION'),
+        'POSTGRES_URL' => env('POSTGRES_URL') ? 'set' : 'not set',
+        'DATABASE_URL' => env('DATABASE_URL') ? 'set' : 'not set',
+        'PGHOST' => env('PGHOST') ? 'set' : 'not set',
+        'NEON' => array_filter($_ENV, function($k) { return str_contains($k, 'PG') || str_contains($k, 'DB') || str_contains($k, 'DATABASE'); }, ARRAY_FILTER_USE_KEY)
+    ]);
+});
