@@ -28,7 +28,7 @@ if (getenv('VERCEL') || isset($_ENV['VERCEL'])) {
     ];
     foreach ($directories as $dir) {
         if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
+            @mkdir($dir, 0777, true);
         }
     }
     $app->useStoragePath($storagePath);
