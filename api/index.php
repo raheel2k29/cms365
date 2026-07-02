@@ -13,7 +13,23 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-// Vercel read-only filesystem fix
-$app->useStoragePath('/tmp/storage');
+// Vercel read-only filesystem fix: create required directories in /tmp
+$storagePath = '/tmp/storage';
+$directories = [
+    $storagePath,
+    $storagePath . '/app',
+    $storagePath . '/framework/cache',
+    $storagePath . '/framework/sessions',
+    $storagePath . '/framework/views',
+    $storagePath . '/logs'
+];
+
+foreach ($directories as $dir) {
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
+}
+
+$app->useStoragePath($storagePath);
 
 $app->handleRequest(Request::capture());
