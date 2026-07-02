@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
         {
-            "src": "public/index.php",
+            "src": "index.php",
             "use": "vercel-php@0.9.0"
         },
         {
@@ -13,7 +13,7 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "/public/index.php"
+            "dest": "/index.php"
         }
     ],
     "env": {
