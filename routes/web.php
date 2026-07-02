@@ -9,7 +9,6 @@ use App\Http\Controllers\EmailController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\BundleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn() => redirect()->route('dashboard'));
@@ -34,9 +33,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Vendors
     Route::resource('vendors', VendorController::class);
-
-    // Bundles
-    Route::get('/bundles', [BundleController::class, 'index'])->name('bundles.index');
 
     // Emails (Microsoft 365 inbox — Phase 5)
     Route::get('/emails', [EmailController::class, 'index'])->name('emails.index');
