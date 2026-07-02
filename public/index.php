@@ -14,7 +14,7 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-if (isset($_ENV['VERCEL'])) {
+if (getenv('VERCEL') || isset($_ENV['VERCEL'])) {
     $storagePath = '/tmp/storage';
     $directories = [
         $storagePath,
