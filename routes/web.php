@@ -55,3 +55,15 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+
+Route::get('/setup-db', function () {
+    try {
+        Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+        // Run specific seeders or default seeder if they exist
+        Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        return 'Database migrated and seeded successfully!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
