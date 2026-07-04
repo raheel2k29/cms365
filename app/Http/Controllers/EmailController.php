@@ -8,11 +8,12 @@ class EmailController extends Controller
 {
     public function index()
     {
-        return view('emails.index');
+        $emails = \App\Models\Email::latest('sent_at')->paginate(20);
+        return view('emails.index', compact('emails'));
     }
 
-    public function show($email)
+    public function show(\App\Models\Email $email)
     {
-        return view('emails.index');
+        return view('emails.show', compact('email'));
     }
 }

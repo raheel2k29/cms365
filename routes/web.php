@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn() => redirect()->route('dashboard'));
 
+// Vercel Serverless Sync Trigger
+Route::get('/api/sync-emails', function () {
+    \Illuminate\Support\Facades\Artisan::call('emails:sync');
+    return response()->json([
+        'status' => 'success',
+        'output' => \Illuminate\Support\Facades\Artisan::output()
+    ]);
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
