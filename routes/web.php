@@ -63,14 +63,6 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/setup-db', function () {
-    \Illuminate\Support\Facades\Artisan::call('migrate:fresh', [
-        '--seed' => true,
-        '--force' => true
-    ]);
-    return 'Database migrated and seeded successfully! You can now log in.';
-});
-
 require __DIR__.'/auth.php';
 
 
