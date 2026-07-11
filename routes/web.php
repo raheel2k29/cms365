@@ -22,6 +22,26 @@ Route::get('/api/sync-emails', function () {
     ]);
 });
 
+// Temporary Route to test sending an email
+Route::get('/api/test-send-email', function (\Illuminate\Http\Request $request) {
+    $to = $request->query('to');
+    if (!$to) {
+        return "Please provide an email address like this: /api/test-send-email?to=your_email@example.com";
+    }
+
+    $outlookService = new \App\Services\OutlookService();
+    $subject = "Test Email from Quote CRM";
+    $htmlContent = "<h1>It works!</h1><p>This email was successfully sent using the Microsoft Graph API from your shared mailbox!</p>";
+    
+    $success = $outlookService->sendEmail($to, $subject, $htmlContent);
+    
+    if ($success) {
+        return "SUCCESS! Check the inbox of {$to} for the test email.";
+    } else {
+        return "FAILED! Check your Laravel logs for the exact MS Graph API error.";
+    }
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
