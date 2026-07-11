@@ -89,4 +89,75 @@ class OutlookService
         Log::error("Failed to fetch attachments for message {$messageId}", ['error' => $response->body()]);
         return [];
     }
+
+    /**
+     * Send an email from the shared mailbox using MS Graph.
+     * 
+     * @param string $toEmail
+     * @param string $subject
+     * @param string $contentHtml
+     * @param array $attachments Array of absolute file paths to attach
+     * @return bool
+     */
+    public function sendEmail(string $toEmail, string $subject, string $contentHtml, array $attachments = [])
+    {
+        $token = $this->getAccessToken();
+        if (!$token) return false;
+
+        $url = "https://graph.microsoft.com/v1.0/users/{$this->sharedMailbox}/sendMail";
+
+        // Prepare the payload
+        $payload = [
+            'message' => [
+                'subject' => $subject,
+                'body' => [
+                    'contentType' => 'HTML',
+                    'content' => $contentHtml,
+                ],
+                'toRecipients' => [
+                    [
+                        'emailAddress' => [
+                            'address' => $toEmail,
+                        ]
+                    ]
+                ],
+                'hasAttachments' => count($attachments) > 0,
+            ],
+            'saveToSentItems' => 'true'
+        ];
+
+        // Process attachments if any exist
+        if (!empty($attachments)) {
+            $graphAttachments = [];
+            foreach ($attachments as $filePath) {
+                if (file_exists($filePath)) {
+                    $fileName = basename($filePath);
+                    $fileContent = file_get_contents($filePath);
+                    $graphAttachments[] = [
+                        '@odata.type' => '#microsoft.graph.fileAttachment',
+                        'name' => $fileName,
+                        'contentType' => mime_content_type($filePath) ?: 'application/octet-stream',
+                        'contentBytes' => base64_encode($fileContent)
+                    ];
+                }
+            }
+            if (!empty($graphAttachments)) {
+                $payload['message']['attachments'] = $graphAttachments;
+            }
+        }
+
+        $response = Http::withoutVerifying()->withToken($token)->post($url, $payload);
+
+        if ($response->successful()) {
+            Log::info("Successfully sent email via MS Graph to {$toEmail}");
+            return true;
+        }
+
+        Log::error("Failed to send email via MS Graph to {$toEmail}", [
+            'status' => $response->status(),
+            'error' => $response->body()
+        ]);
+        
+        return false;
+    }
 }
