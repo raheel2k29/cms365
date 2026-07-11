@@ -67,4 +67,26 @@ class OutlookService
         Log::error('Failed to fetch inbox messages', ['error' => $response->body()]);
         return [];
     }
+
+    /**
+     * Fetch attachments for a specific message from MS Graph.
+     * @param string $messageId
+     * @return array
+     */
+    public function getMessageAttachments(string $messageId)
+    {
+        $token = $this->getAccessToken();
+        if (!$token) return [];
+
+        $url = "https://graph.microsoft.com/v1.0/users/{$this->sharedMailbox}/messages/{$messageId}/attachments";
+        
+        $response = Http::withoutVerifying()->withToken($token)->get($url);
+
+        if ($response->successful()) {
+            return $response->json('value') ?? [];
+        }
+
+        Log::error("Failed to fetch attachments for message {$messageId}", ['error' => $response->body()]);
+        return [];
+    }
 }
