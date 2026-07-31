@@ -158,6 +158,58 @@ class QuoteController extends Controller
         return $pdf->download("Quote_{$quote->quote_number}.pdf");
     }
 
+    public function sendEmail(Quote $quote)
+    {
+        // 1. Ensure the quote has a contact with an email
+        if (!$quote->contact || !$quote->contact->email) {
+            return redirect()->back()->with('error', 'Cannot send email: This quote does not have a Contact with a valid email address.');
+        }
+
+        // 2. Generate the PDF
+        $quote->load(['company', 'contact', 'items.vendor']);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('quotes.pdf', compact('quote'));
+        
+        // 3. Save PDF temporarily
+        $fileName = "Quote_{$quote->quote_number}.pdf";
+        $tempPath = storage_path("app/public/temp_{$fileName}");
+        $pdf->save($tempPath);
+
+        // 4. Send Email via MS Graph
+        $outlookService = new \App\Services\OutlookService();
+        $toEmail = $quote->contact->email;
+        $subject = "Your Quote is Ready: {$quote->project_name}";
+        $htmlContent = "
+            <p>Hello {$quote->contact->name},</p>
+            <p>Please find your finalized quote attached.</p>
+            <p>Let us know if you have any questions!</p>
+            <br>
+            <p>Thank you,<br>" . (auth()->user()->name ?? 'Quote CRM Team') . "</p>
+        ";
+
+        $success = $outlookService->sendEmail($toEmail, $subject, $htmlContent, [$tempPath]);
+
+        // 5. Clean up temporary PDF
+        if (file_exists($tempPath)) {
+            unlink($tempPath);
+        }
+
+        if ($success) {
+            // Log activity and update status
+            $quote->activityLogs()->create([
+                'user_id' => auth()->id(),
+                'action'  => 'status_changed',
+                'description' => "Quote PDF emailed to {$toEmail}."
+            ]);
+            
+            $quote->status = 'quote_sent';
+            $quote->save();
+
+            return redirect()->back()->with('success', "Quote successfully emailed to {$toEmail}!");
+        }
+
+        return redirect()->back()->with('error', 'Failed to send email. Please check your MS Graph connection settings.');
+    }
+
     public function destroy(Quote $quote)
     {
         $quote->delete();
