@@ -48,7 +48,7 @@ class Quote extends Model
     public function items(): HasMany            { return $this->hasMany(QuoteItem::class)->orderBy('sort_order'); }
     public function vendorRequests(): HasMany   { return $this->hasMany(QuoteVendorRequest::class); }
     public function links(): HasMany            { return $this->hasMany(QuoteLink::class); }
-    public function emails(): HasMany           { return $this->hasMany(Email::class); }
+    public function emails(): HasMany           { return $this->hasMany(Email::class)->orderBy('sent_at')->orderBy('created_at'); }
     public function attachments(): HasMany      { return $this->hasMany(Attachment::class); }
     public function notes(): HasMany            { return $this->hasMany(Note::class)->orderByDesc('is_pinned')->orderByDesc('created_at'); }
     public function activityLogs(): HasMany     { return $this->hasMany(ActivityLog::class)->orderByDesc('created_at'); }

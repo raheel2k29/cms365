@@ -63,7 +63,7 @@ class QuoteController extends Controller
 
     public function show(Quote $quote)
     {
-        $quote->load(['company', 'contact', 'assignedUser', 'items', 'attachments', 'notes.user', 'activityLogs.user']);
+        $quote->load(['company', 'contact', 'assignedUser', 'items', 'attachments', 'emails.attachments', 'notes.user', 'activityLogs.user']);
         return view('quotes.show', compact('quote'));
     }
 

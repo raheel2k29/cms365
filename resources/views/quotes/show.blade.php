@@ -32,6 +32,22 @@
     .timeline-dot { position: absolute; left: -17px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); }
     .timeline-content { background: #f8fafc; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-light); font-size: 13px; }
     .timeline-date { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+    
+    .tabs { display: flex; border-bottom: 1px solid var(--border); background: #f8fafc; }
+    .tab { padding: 12px 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .tab:hover { color: var(--text-primary); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: #fff; }
+    .tab-content { display: none; padding: 20px; }
+    .tab-content.active { display: block; }
+    
+    .email-thread { display: flex; flex-direction: column; gap: 16px; max-height: 500px; overflow-y: auto; padding-right: 8px; }
+    .email-bubble { max-width: 85%; padding: 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; border: 1px solid var(--border-light); }
+    .email-inbound { align-self: flex-start; background: #f1f5f9; border-bottom-left-radius: 4px; }
+    .email-outbound { align-self: flex-end; background: #eff6ff; border-color: #bfdbfe; border-bottom-right-radius: 4px; }
+    .email-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px; }
+    .email-subject { font-weight: 600; margin-bottom: 6px; color: var(--text-primary); }
+    .email-body { overflow-wrap: break-word; }
+    .email-body iframe { border: none; width: 100%; height: 300px; background: #fff; border-radius: 4px; margin-top: 8px; }
 </style>
 @endpush
 
@@ -157,8 +173,77 @@
 
     <div>
         <div class="card">
-            <div class="card-header">Internal Notes</div>
-            <div class="card-body">
+            <div class="card-header" style="padding:0; border-bottom:none">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('customer')">Customer Thread</div>
+                    <div class="tab" onclick="switchTab('vendor')">Vendor Thread</div>
+                    <div class="tab" onclick="switchTab('internal')">Internal Notes</div>
+                </div>
+            </div>
+            
+            <div id="tab-customer" class="tab-content active">
+                <div class="email-thread">
+                    @php $customerEmails = $quote->emails->where('thread_type', 'customer'); @endphp
+                    @if($customerEmails->isEmpty())
+                        <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:24px">No customer emails found for this quote.</div>
+                    @else
+                        @foreach($customerEmails as $email)
+                        <div class="email-bubble {{ $email->direction === 'inbound' ? 'email-inbound' : 'email-outbound' }}">
+                            <div class="email-meta">
+                                <div><strong>{{ $email->from_name ?: $email->from_email }}</strong> to {{ $email->to_email }}</div>
+                                <div>{{ $email->sent_at ? $email->sent_at->format('M d, g:i A') : $email->created_at->format('M d, g:i A') }}</div>
+                            </div>
+                            <div class="email-subject">{{ $email->subject }}</div>
+                            <div class="email-body">
+                                @if($email->body_html)
+                                    <iframe srcdoc="{{ htmlspecialchars($email->body_html) }}"></iframe>
+                                @else
+                                    {!! nl2br(e($email->body_text)) !!}
+                                @endif
+                            </div>
+                            @if($email->attachments->isNotEmpty())
+                            <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(0,0,0,0.1)">
+                                <div style="font-size:11px; font-weight:600; margin-bottom:4px">Attachments:</div>
+                                <ul style="list-style:none; padding:0; margin:0; font-size:12px">
+                                @foreach($email->attachments as $att)
+                                    <li><a href="{{ route('attachments.download', $att) }}" target="_blank" style="color:var(--accent);text-decoration:none">📎 {{ $att->original_name }}</a></li>
+                                @endforeach
+                                </ul>
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+
+            <div id="tab-vendor" class="tab-content">
+                <div class="email-thread">
+                    @php $vendorEmails = $quote->emails->where('thread_type', 'vendor'); @endphp
+                    @if($vendorEmails->isEmpty())
+                        <div style="text-align:center;color:var(--text-muted);font-size:13px;padding:24px">No vendor emails found for this quote.</div>
+                    @else
+                        @foreach($vendorEmails as $email)
+                        <div class="email-bubble {{ $email->direction === 'inbound' ? 'email-inbound' : 'email-outbound' }}">
+                            <div class="email-meta">
+                                <div><strong>{{ $email->from_name ?: $email->from_email }}</strong> to {{ $email->to_email }}</div>
+                                <div>{{ $email->sent_at ? $email->sent_at->format('M d, g:i A') : $email->created_at->format('M d, g:i A') }}</div>
+                            </div>
+                            <div class="email-subject">{{ $email->subject }}</div>
+                            <div class="email-body">
+                                @if($email->body_html)
+                                    <iframe srcdoc="{{ htmlspecialchars($email->body_html) }}"></iframe>
+                                @else
+                                    {!! nl2br(e($email->body_text)) !!}
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+
+            <div id="tab-internal" class="tab-content">
                 <form action="{{ route('quotes.notes.store', $quote) }}" method="POST" style="margin-bottom:16px">
                     @csrf
                     <textarea name="body" class="form-control" rows="3" placeholder="Add a note to this quote thread..." required></textarea>
@@ -177,6 +262,18 @@
                 @endforeach
             </div>
         </div>
+
+        <script>
+            function switchTab(tabId) {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                event.currentTarget.classList.add('active');
+                document.getElementById('tab-' + tabId).classList.add('active');
+            }
+        </script>
 
         <div class="card">
             <div class="card-header">Quote Timeline</div>
