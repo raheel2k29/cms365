@@ -194,6 +194,19 @@ class QuoteController extends Controller
         }
 
         if ($success) {
+            // Save the email to the database so it shows up in the thread
+            $quote->emails()->create([
+                'thread_type' => 'customer',
+                'direction'   => 'outbound',
+                'from_email'  => env('SHARED_MAILBOX_ADDRESS', 'sales@electricsupplyconnections.com'),
+                'to_email'    => $toEmail,
+                'subject'     => $subject,
+                'body_html'   => $htmlContent,
+                'body_text'   => strip_tags(str_replace('<br>', "\n", $htmlContent)),
+                'has_attachments' => true,
+                'sent_at'     => now(),
+            ]);
+
             // Log activity and update status
             $quote->activityLogs()->create([
                 'user_id' => auth()->id(),
