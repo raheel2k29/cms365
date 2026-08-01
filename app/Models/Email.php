@@ -31,4 +31,9 @@ class Email extends Model
     {
         return $this->belongsTo(Quote::class);
     }
+
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class);
+    }
 }
