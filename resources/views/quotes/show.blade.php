@@ -196,7 +196,7 @@
                             <div class="email-subject">{{ $email->subject }}</div>
                             <div class="email-body">
                                 @if($email->body_html)
-                                    <iframe srcdoc="{{ htmlspecialchars($email->body_html) }}"></iframe>
+                                    <iframe srcdoc="{{ $email->body_html }}" style="border:none; width:100%; height:auto; min-height:150px"></iframe>
                                 @else
                                     {!! nl2br(e($email->body_text)) !!}
                                 @endif
@@ -232,7 +232,7 @@
                             <div class="email-subject">{{ $email->subject }}</div>
                             <div class="email-body">
                                 @if($email->body_html)
-                                    <iframe srcdoc="{{ htmlspecialchars($email->body_html) }}"></iframe>
+                                    <iframe srcdoc="{{ $email->body_html }}" style="border:none; width:100%; height:auto; min-height:150px"></iframe>
                                 @else
                                     {!! nl2br(e($email->body_text)) !!}
                                 @endif
