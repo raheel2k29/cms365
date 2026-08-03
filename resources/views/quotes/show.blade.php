@@ -89,7 +89,14 @@
                 </div>
 
                 <div style="border-top:1px solid var(--border);padding-top:20px">
-                    <div style="font-weight:700;margin-bottom:12px">Line Items</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                        <div style="font-weight:700">Line Items</div>
+                        @if($quote->items->isNotEmpty())
+                        <a href="{{ route('quotes.vendor-requests.create', $quote) }}" class="btn btn-outline-primary btn-sm" style="font-size:12px;padding:4px 8px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;border-radius:4px;background:#fff">
+                            📨 Request Vendor Pricing
+                        </a>
+                        @endif
+                    </div>
                     <table style="width:100%;font-size:13px;text-align:left;border-collapse:collapse">
                         <thead>
                             <tr style="border-bottom:1px solid var(--border)">

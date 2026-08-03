@@ -21,13 +21,19 @@ class QuoteController extends Controller
         return view('quotes.index', compact('quotes'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $companies = Company::orderBy('name')->get();
         $contacts = Contact::orderBy('name')->get();
         $quoteTypes = QuoteType::where('is_active', true)->get();
         
-        return view('quotes.create', compact('companies', 'contacts', 'quoteTypes'));
+        $emailId = $request->query('email_id');
+        $email = null;
+        if ($emailId) {
+            $email = \App\Models\Email::find($emailId);
+        }
+        
+        return view('quotes.create', compact('companies', 'contacts', 'quoteTypes', 'email'));
     }
 
     public function store(Request $request)
@@ -40,16 +46,32 @@ class QuoteController extends Controller
             'company_id'   => 'nullable|exists:companies,id',
             'contact_id'   => 'nullable|exists:contacts,id',
             'quote_type_id'=> 'nullable|exists:quote_types,id',
+            'email_id'     => 'nullable|exists:emails,id',
         ]);
 
         $businessEntity = BusinessEntity::where('code', 'ESC')->first() ?? BusinessEntity::first();
 
-        $quote = new Quote($validated);
+        $quote = new Quote($request->except('email_id'));
         $quote->quote_number = Quote::generateNumber();
         $quote->business_entity_id = $businessEntity->id;
         $quote->assigned_to = auth()->id();
         $quote->status = 'new';
         $quote->save();
+
+        // If created from an email, link the email and the whole thread to this quote
+        if ($request->filled('email_id')) {
+            $email = \App\Models\Email::find($request->email_id);
+            if ($email) {
+                $email->quote_id = $quote->id;
+                $email->save();
+                
+                // Also update any other emails in the same conversation
+                if ($email->conversation_id) {
+                    \App\Models\Email::where('conversation_id', $email->conversation_id)
+                                     ->update(['quote_id' => $quote->id]);
+                }
+            }
+        }
 
         // Log creation
         $quote->activityLogs()->create([

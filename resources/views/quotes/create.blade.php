@@ -8,9 +8,16 @@
 <div style="max-width:600px;margin:0 auto;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:24px">
     <form action="{{ route('quotes.store') }}" method="POST">
         @csrf
+        @if(isset($email))
+            <input type="hidden" name="email_id" value="{{ $email->id }}">
+            <div style="background:var(--accent); color:#fff; padding:12px; border-radius:6px; margin-bottom:20px; font-size:13px">
+                <strong>Creating from Email:</strong> {{ $email->subject }}
+            </div>
+        @endif
+
         <div style="margin-bottom:20px">
             <label class="form-label" style="display:block;margin-bottom:8px;font-weight:600;font-size:13px">Project Name <span style="color:var(--text-muted);font-weight:400">(Optional)</span></label>
-            <input type="text" name="project_name" class="form-control" style="width:100%;padding:10px 14px;font-size:14px" placeholder="e.g. Acme HQ Renovation">
+            <input type="text" name="project_name" class="form-control" style="width:100%;padding:10px 14px;font-size:14px" placeholder="e.g. Acme HQ Renovation" value="{{ isset($email) ? $email->subject : '' }}">
             @error('project_name')<div style="color:#dc2626;font-size:12px;margin-top:4px">{{ $message }}</div>@enderror
         </div>
 

@@ -11,7 +11,20 @@
 
 <div class="card bg-white shadow-sm rounded-lg overflow-hidden">
     <div class="p-6 border-b border-gray-200 bg-gray-50">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ $email->subject ?? '(No Subject)' }}</h2>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">{{ $email->subject ?? '(No Subject)' }}</h2>
+            <div>
+                @if($email->quote_id)
+                    <a href="{{ route('quotes.show', $email->quote_id) }}" class="btn btn-primary" style="background:var(--accent); color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:13px; font-weight:600">
+                        View Quote #{{ $email->quote->quote_number ?? $email->quote_id }}
+                    </a>
+                @else
+                    <a href="{{ route('quotes.create', ['email_id' => $email->id]) }}" class="btn btn-success" style="background:#10b981; color:#fff; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:13px; font-weight:600">
+                        + Create Quote from Email
+                    </a>
+                @endif
+            </div>
+        </div>
         
         <div class="flex justify-between items-start">
             <div>

@@ -84,31 +84,28 @@ class SyncEmails extends Command
                     ]);
                 }
 
-                // 2. Create Quote Draft
-                $businessEntity = BusinessEntity::first();
-                $quoteType = QuoteType::first();
+                // 2. Thread Matching
+                $conversationId = $msg['conversationId'] ?? null;
+                $quoteId = null;
+                
+                if ($conversationId) {
+                    $existingThreadEmail = Email::where('conversation_id', $conversationId)
+                                              ->whereNotNull('quote_id')
+                                              ->first();
+                    if ($existingThreadEmail) {
+                        $quoteId = $existingThreadEmail->quote_id;
+                    }
+                }
+
                 $subject = $msg['subject'] ?? '(No Subject)';
-
-                $quote = Quote::create([
-                    'quote_number' => Quote::generateNumber(),
-                    'business_entity_id' => $businessEntity ? $businessEntity->id : 1,
-                    'quote_type_id' => $quoteType ? $quoteType->id : null,
-                    'contact_id' => $contact->id,
-                    'company_id' => $contact->company_id,
-                    'project_name' => Str::limit($subject, 100),
-                    'status' => 'new',
-                    'source' => 'email',
-                    'requested_at' => Carbon::parse($msg['sentDateTime']),
-                ]);
-
-                // 3. Create Email Record
                 $body = $msg['body'] ?? null;
                 $content = $body ? ($body['content'] ?? '') : '';
 
+                // 3. Create Email Record
                 $email = Email::create([
-                    'quote_id' => $quote->id,
+                    'quote_id' => $quoteId, // Null if new thread
                     'graph_message_id' => $msg['id'],
-                    'conversation_id' => $msg['conversationId'] ?? null,
+                    'conversation_id' => $conversationId,
                     'thread_type' => 'customer', 
                     'direction' => 'inbound',
                     'from_name' => $senderName,
@@ -139,7 +136,7 @@ class SyncEmails extends Command
                                 Storage::disk('public')->put($filePath, $decodedContent);
                                 
                                 Attachment::create([
-                                    'quote_id' => $quote->id,
+                                    'quote_id' => $quoteId, // Can be null
                                     'email_id' => $email->id,
                                     'original_name' => $fileName,
                                     'stored_name' => $storedName,

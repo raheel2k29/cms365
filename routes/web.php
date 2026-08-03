@@ -54,6 +54,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('quotes/{quote}/notes', [\App\Http\Controllers\NoteController::class, 'store'])->name('quotes.notes.store');
     Route::post('quotes/{quote}/attachments', [\App\Http\Controllers\AttachmentController::class, 'store'])->name('quotes.attachments.store');
     Route::get('attachments/{attachment}/download', [\App\Http\Controllers\AttachmentController::class, 'download'])->name('attachments.download');
+    
+    // Vendor Pricing Requests
+    Route::get('quotes/{quote}/vendor-requests/create', [\App\Http\Controllers\QuoteVendorRequestController::class, 'create'])->name('quotes.vendor-requests.create');
+    Route::post('quotes/{quote}/vendor-requests', [\App\Http\Controllers\QuoteVendorRequestController::class, 'store'])->name('quotes.vendor-requests.store');
 
     // Contacts
     Route::resource('contacts', ContactController::class);
