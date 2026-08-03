@@ -42,6 +42,32 @@ Route::get('/api/test-send-email', function (\Illuminate\Http\Request $request) 
     }
 });
 
+Route::get('/api/debug-attachments', function () {
+    $outlookService = new \App\Services\OutlookService();
+    $messages = $outlookService->getInboxMessages(5);
+    
+    $results = [];
+    foreach ($messages as $msg) {
+        if ($msg['hasAttachments']) {
+            $attachments = $outlookService->getMessageAttachments($msg['id']);
+            
+            // Strip huge contentBytes from output so it doesn't crash the browser
+            foreach ($attachments as &$att) {
+                if (isset($att['contentBytes'])) {
+                    $att['contentBytes'] = 'REMOVED_FOR_DEBUG_OUTPUT (length: ' . strlen($att['contentBytes']) . ')';
+                }
+            }
+            
+            $results[] = [
+                'subject' => $msg['subject'],
+                'message_id' => $msg['id'],
+                'attachments' => $attachments
+            ];
+        }
+    }
+    return response()->json($results);
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
