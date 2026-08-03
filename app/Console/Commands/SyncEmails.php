@@ -88,6 +88,7 @@ class SyncEmails extends Command
                 $conversationId = $msg['conversationId'] ?? null;
                 $subject = $msg['subject'] ?? '(No Subject)';
                 $quoteId = null;
+                $threadType = 'customer'; // Default
                 
                 if ($conversationId) {
                     $existingThreadEmail = Email::where('conversation_id', $conversationId)
@@ -95,6 +96,7 @@ class SyncEmails extends Command
                                               ->first();
                     if ($existingThreadEmail) {
                         $quoteId = $existingThreadEmail->quote_id;
+                        $threadType = $existingThreadEmail->thread_type;
                     }
                 }
 
@@ -104,6 +106,7 @@ class SyncEmails extends Command
                     $outboundMatch = Email::where('subject', $cleanSubject)->whereNotNull('quote_id')->first();
                     if ($outboundMatch) {
                         $quoteId = $outboundMatch->quote_id;
+                        $threadType = $outboundMatch->thread_type;
                         // Since we found a match, let's also update the outbound email's conversation_id to fix the thread!
                         if ($conversationId && !$outboundMatch->conversation_id) {
                             $outboundMatch->conversation_id = $conversationId;
@@ -120,7 +123,7 @@ class SyncEmails extends Command
                     'quote_id' => $quoteId, // Null if new thread
                     'graph_message_id' => $msg['id'],
                     'conversation_id' => $conversationId,
-                    'thread_type' => 'customer', 
+                    'thread_type' => $threadType, 
                     'direction' => 'inbound',
                     'from_name' => $senderName,
                     'from_email' => $senderEmail,
