@@ -86,6 +86,7 @@ class SyncEmails extends Command
 
                 // 2. Thread Matching
                 $conversationId = $msg['conversationId'] ?? null;
+                $subject = $msg['subject'] ?? '(No Subject)';
                 $quoteId = null;
                 
                 if ($conversationId) {
@@ -97,7 +98,20 @@ class SyncEmails extends Command
                     }
                 }
 
-                $subject = $msg['subject'] ?? '(No Subject)';
+                // Fallback: Smart Subject Matching (if outbound email didn't have a conversation_id)
+                if (!$quoteId && $subject) {
+                    $cleanSubject = trim(preg_replace('/^(Re|Fwd|Fw|RE|FWD|FW):\s*/i', '', $subject));
+                    $outboundMatch = Email::where('subject', $cleanSubject)->whereNotNull('quote_id')->first();
+                    if ($outboundMatch) {
+                        $quoteId = $outboundMatch->quote_id;
+                        // Since we found a match, let's also update the outbound email's conversation_id to fix the thread!
+                        if ($conversationId && !$outboundMatch->conversation_id) {
+                            $outboundMatch->conversation_id = $conversationId;
+                            $outboundMatch->save();
+                        }
+                    }
+                }
+
                 $body = $msg['body'] ?? null;
                 $content = $body ? ($body['content'] ?? '') : '';
 
