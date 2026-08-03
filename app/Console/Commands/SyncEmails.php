@@ -62,6 +62,11 @@ class SyncEmails extends Command
                 $senderEmail = $from ? ($from['emailAddress']['address'] ?? 'unknown@example.com') : 'unknown@example.com';
                 $senderName = $from ? ($from['emailAddress']['name'] ?? 'Unknown') : 'Unknown';
 
+                // Prevent pulling in Sent Items if they somehow leak into the fetch
+                if (strtolower($senderEmail) === strtolower(config('services.msgraph.shared_mailbox'))) {
+                    continue;
+                }
+
                 // 1. Match or Create Contact & Company
                 $domain = Str::after($senderEmail, '@');
                 $companyName = explode('@', $senderEmail)[0] . ' Company';

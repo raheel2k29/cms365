@@ -56,7 +56,7 @@ class OutlookService
         $token = $this->getAccessToken();
         if (!$token) return [];
 
-        $url = "https://graph.microsoft.com/v1.0/users/{$this->sharedMailbox}/messages?\$top={$limit}";
+        $url = "https://graph.microsoft.com/v1.0/users/{$this->sharedMailbox}/mailFolders/inbox/messages?\$top={$limit}";
         
         $response = Http::withoutVerifying()->withToken($token)->get($url);
 
