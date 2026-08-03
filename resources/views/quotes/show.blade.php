@@ -222,6 +222,20 @@
                         @endforeach
                     @endif
                 </div>
+                
+                <div style="padding:16px; border-top:1px solid var(--border); background:#f8fafc">
+                    <form action="{{ route('quotes.reply', $quote) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="thread_type" value="customer">
+                        <input type="hidden" name="to_email" value="{{ $quote->contact->email }}">
+                        <div style="margin-bottom:8px">
+                            <textarea name="message" class="form-control" rows="3" placeholder="Reply to customer..." required style="width:100%; padding:10px; font-size:13px"></textarea>
+                        </div>
+                        <div style="text-align:right">
+                            <button type="submit" class="btn btn-primary btn-sm">Send Reply</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <div id="tab-vendor" class="tab-content">

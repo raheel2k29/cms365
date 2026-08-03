@@ -210,14 +210,9 @@ class QuoteController extends Controller
 
         $success = $outlookService->sendEmail($toEmail, $subject, $htmlContent, [$tempPath]);
 
-        // 5. Clean up temporary PDF
-        if (file_exists($tempPath)) {
-            unlink($tempPath);
-        }
-
         if ($success) {
             // Save the email to the database so it shows up in the thread
-            $quote->emails()->create([
+            $email = $quote->emails()->create([
                 'thread_type' => 'customer',
                 'direction'   => 'outbound',
                 'from_email'  => env('SHARED_MAILBOX_ADDRESS', 'sales@electricsupplyconnections.com'),
@@ -228,6 +223,26 @@ class QuoteController extends Controller
                 'has_attachments' => true,
                 'sent_at'     => now(),
             ]);
+
+            // Save the PDF as an attachment in the database
+            if (file_exists($tempPath)) {
+                $storedName = \Illuminate\Support\Str::uuid() . '_' . $fileName;
+                $filePath = 'attachments/' . $storedName;
+                \Illuminate\Support\Facades\Storage::disk('public')->put($filePath, file_get_contents($tempPath));
+                
+                \App\Models\Attachment::create([
+                    'quote_id' => $quote->id,
+                    'email_id' => $email->id,
+                    'original_name' => $fileName,
+                    'stored_name' => $storedName,
+                    'file_path' => $filePath,
+                    'mime_type' => 'application/pdf',
+                    'file_size' => filesize($tempPath),
+                    'source' => 'system_generated'
+                ]);
+                
+                unlink($tempPath); // Clean up temp file
+            }
 
             // Log activity and update status
             $quote->activityLogs()->create([
@@ -248,6 +263,42 @@ class QuoteController extends Controller
     public function destroy(Quote $quote)
     {
         $quote->delete();
-        return redirect()->route('quotes.index')->with('success', 'Quote deleted.');
+        return redirect()->route('quotes.index')->with('success', 'Quote deleted successfully.');
+    }
+
+    public function reply(Request $request, Quote $quote)
+    {
+        $request->validate([
+            'message' => 'required|string',
+            'thread_type' => 'required|in:customer,vendor',
+            'to_email' => 'required|email'
+        ]);
+
+        $subject = 'Re: Your Quote is Ready: ' . $quote->project_name;
+        if ($request->thread_type === 'vendor') {
+            $subject = 'Re: Pricing Request - ' . $quote->project_name . ' (Quote #' . $quote->quote_number . ')';
+        }
+
+        $htmlContent = nl2br(e($request->message));
+        
+        $outlookService = new \App\Services\OutlookService();
+        $success = $outlookService->sendEmail($request->to_email, $subject, $htmlContent);
+
+        if ($success) {
+            $quote->emails()->create([
+                'thread_type' => $request->thread_type,
+                'direction'   => 'outbound',
+                'from_email'  => env('SHARED_MAILBOX_ADDRESS', 'sales@electricsupplyconnections.com'),
+                'to_email'    => $request->to_email,
+                'subject'     => $subject,
+                'body_html'   => $htmlContent,
+                'body_text'   => $request->message,
+                'sent_at'     => now(),
+            ]);
+
+            return redirect()->back()->with('success', 'Reply sent successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Failed to send reply via Microsoft Graph.');
     }
 }

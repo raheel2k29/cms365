@@ -86,3 +86,4 @@ class QuoteVendorRequestController extends Controller
 
         return redirect()->back()->with('error', 'Failed to send email. Please check your MS Graph connection settings.');
     }
+}
