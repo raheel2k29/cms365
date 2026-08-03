@@ -146,12 +146,19 @@ class SyncEmails extends Command
                     foreach ($attachments as $att) {
                         if (isset($att['@odata.type']) && $att['@odata.type'] === '#microsoft.graph.fileAttachment') {
                             $fileName = $att['name'];
-                            $contentBytes = $att['contentBytes'] ?? '';
                             $size = $att['size'] ?? 0;
                             $contentType = $att['contentType'] ?? 'application/octet-stream';
                             
-                            if ($contentBytes) {
-                                $decodedContent = base64_decode($contentBytes);
+                            $decodedContent = null;
+
+                            if (!empty($att['contentBytes'])) {
+                                $decodedContent = base64_decode($att['contentBytes']);
+                            } else {
+                                // If Graph omitted contentBytes (often for large files > 3MB), fetch it directly
+                                $decodedContent = $outlookService->getAttachmentContent($msg['id'], $att['id']);
+                            }
+                            
+                            if ($decodedContent) {
                                 $storedName = Str::uuid() . '_' . preg_replace('/[^A-Za-z0-9.\-]/', '_', $fileName);
                                 $filePath = 'attachments/' . $storedName;
                                 

@@ -90,6 +90,23 @@ class OutlookService
         return [];
     }
 
+    public function getAttachmentContent(string $messageId, string $attachmentId)
+    {
+        $token = $this->getAccessToken();
+        if (!$token) return null;
+
+        $url = "https://graph.microsoft.com/v1.0/users/{$this->sharedMailbox}/messages/{$messageId}/attachments/{$attachmentId}/\$value";
+        
+        $response = Http::withoutVerifying()->withToken($token)->get($url);
+
+        if ($response->successful()) {
+            return $response->body(); // Raw binary content
+        }
+
+        Log::error("Failed to fetch raw attachment content for attachment {$attachmentId}", ['error' => $response->body()]);
+        return null;
+    }
+
     /**
      * Send an email from the shared mailbox using MS Graph.
      * 
