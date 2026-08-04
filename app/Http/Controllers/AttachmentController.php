@@ -43,10 +43,16 @@ class AttachmentController extends Controller
     
     public function download(Attachment $attachment)
     {
-        if (!Storage::exists($attachment->file_path)) {
-            abort(404, 'File not found on disk.');
+        // Check local disk first (manual uploads)
+        if (Storage::disk('local')->exists($attachment->file_path)) {
+            return Storage::disk('local')->download($attachment->file_path, $attachment->original_name);
         }
         
-        return Storage::download($attachment->file_path, $attachment->original_name);
+        // Check public disk (synced from MS Graph)
+        if (Storage::disk('public')->exists($attachment->file_path)) {
+            return Storage::disk('public')->download($attachment->file_path, $attachment->original_name);
+        }
+
+        abort(404, 'File not found on disk.');
     }
 }
