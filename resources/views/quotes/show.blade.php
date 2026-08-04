@@ -5,13 +5,10 @@
 <a href="{{ route('quotes.pdf', $quote) }}" class="btn btn-ghost" style="margin-right:8px" target="_blank"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> Download PDF</a>
 <a href="{{ route('quotes.edit', $quote) }}" class="btn btn-ghost" style="margin-right:8px"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Edit Quote</a>
 
-<form action="{{ route('quotes.send-email', $quote) }}" method="POST" style="display:inline" onsubmit="return confirm('Are you sure you want to send this quote PDF to {{ $quote->contact->email ?? 'the customer' }}?');">
-    @csrf
-    <button type="submit" class="btn btn-primary" style="background:#16a34a; border-color:#16a34a; display:inline-flex; align-items:center;">
-        <svg style="width:20px;height:20px;margin-right:8px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg> 
-        Send to Customer
-    </button>
-</form>
+<button type="button" class="btn btn-primary" onclick="document.getElementById('sendQuoteModal').style.display='block'" style="background:#16a34a; border-color:#16a34a; display:inline-flex; align-items:center;">
+    <svg style="width:20px;height:20px;margin-right:8px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg> 
+    Send to Customer
+</button>
 @endsection
 
 @push('styles')
@@ -314,5 +311,30 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="sendQuoteModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.4);">
+  <div class="modal-content" style="background-color:#fefefe; margin:10% auto; padding:24px; border:1px solid #888; max-width:600px; border-radius:8px;">
+    <h3 style="margin-top:0">Send Quote PDF to {{ $quote->contact->email ?? 'Customer' }}</h3>
+    <form action="{{ route('quotes.send-email', $quote) }}" method="POST">
+        @csrf
+        <div style="margin-bottom:16px;">
+            <label style="font-weight:600; display:block; margin-bottom:8px">Email Message:</label>
+            <textarea name="message" class="form-control" rows="8" style="width:100%; padding:12px; font-size:14px; border-radius:4px; border:1px solid var(--border);" required>Hello {{ $quote->contact->name ?? 'Customer' }},
+
+Please find your finalized quote attached.
+
+Let us know if you have any questions!
+
+
+Thank you,
+{{ auth()->user()->name ?? 'Quote CRM Team' }}</textarea>
+        </div>
+        <div style="text-align:right">
+            <button type="button" class="btn btn-ghost" onclick="document.getElementById('sendQuoteModal').style.display='none'">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="background:#16a34a; border-color:#16a34a;">Send Email with PDF</button>
+        </div>
+    </form>
+  </div>
 </div>
 @endsection

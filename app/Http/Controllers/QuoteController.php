@@ -180,7 +180,7 @@ class QuoteController extends Controller
         return $pdf->download("Quote_{$quote->quote_number}.pdf");
     }
 
-    public function sendEmail(Quote $quote)
+    public function sendEmail(Request $request, Quote $quote)
     {
         // 1. Ensure the quote has a contact with an email
         if (!$quote->contact || !$quote->contact->email) {
@@ -200,13 +200,18 @@ class QuoteController extends Controller
         $outlookService = new \App\Services\OutlookService();
         $toEmail = $quote->contact->email;
         $subject = "Your Quote is Ready: {$quote->project_name}";
-        $htmlContent = "
-            <p>Hello {$quote->contact->name},</p>
-            <p>Please find your finalized quote attached.</p>
-            <p>Let us know if you have any questions!</p>
-            <br>
-            <p>Thank you,<br>" . (auth()->user()->name ?? 'Quote CRM Team') . "</p>
-        ";
+        
+        if ($request->has('message')) {
+            $htmlContent = nl2br(e($request->input('message')));
+        } else {
+            $htmlContent = "
+                <p>Hello {$quote->contact->name},</p>
+                <p>Please find your finalized quote attached.</p>
+                <p>Let us know if you have any questions!</p>
+                <br>
+                <p>Thank you,<br>" . (auth()->user()->name ?? 'Quote CRM Team') . "</p>
+            ";
+        }
 
         $success = $outlookService->sendEmail($toEmail, $subject, $htmlContent, [$tempPath]);
 
