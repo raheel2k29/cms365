@@ -68,6 +68,15 @@ Route::get('/api/debug-attachments', function () {
     return response()->json($results);
 });
 
+Route::get('/api/migrate', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return 'Database migrated successfully!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
