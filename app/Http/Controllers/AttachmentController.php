@@ -53,6 +53,29 @@ class AttachmentController extends Controller
             return Storage::disk('public')->download($attachment->file_path, $attachment->original_name);
         }
 
-        abort(404, 'File not found on disk.');
+        // Fallback: Fetch directly from Microsoft Graph if it's an email attachment!
+        if ($attachment->email_id && $attachment->email->graph_message_id) {
+            $outlookService = new \App\Services\OutlookService();
+            $messageId = $attachment->email->graph_message_id;
+            
+            // Get all attachments for this email to find the attachment ID
+            $graphAttachments = collect($outlookService->getMessageAttachments($messageId));
+            $target = $graphAttachments->firstWhere('name', $attachment->original_name);
+            
+            if ($target && isset($target['id'])) {
+                // Fetch the raw content directly from Graph
+                $content = $outlookService->getAttachmentContent($messageId, $target['id']);
+                
+                if ($content) {
+                    return response()->streamDownload(function () use ($content) {
+                        echo $content;
+                    }, $attachment->original_name, [
+                        'Content-Type' => $attachment->mime_type ?? 'application/octet-stream',
+                    ]);
+                }
+            }
+        }
+
+        abort(404, 'File not found on disk or Microsoft Graph.');
     }
 }
