@@ -31,7 +31,7 @@
     @endif
     <span style="margin-left:auto;font-size:12.5px;color:var(--text-muted)">{{ $vendors->total() }} vendors</span>
 
-    <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display:none; background:#dc2626; border-color:#dc2626; color:white" onclick="if(confirm('Are you sure you want to delete all selected vendors?')) document.getElementById('bulkDeleteForm').submit();">
+    <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display:none; background:#dc2626; border-color:#dc2626; color:white" onclick="submitBulkDelete('{{ route('vendors.bulk-delete') }}')">
         Delete Selected
     </button>
 </div>
@@ -49,8 +49,6 @@
             <a href="{{ route('vendors.create') }}" class="btn btn-primary" style="margin-top:8px">+ New Vendor</a>
         </div>
     @else
-    <form id="bulkDeleteForm" method="POST" action="{{ route('vendors.bulk-delete') }}">
-        @csrf
     <div class="table-wrap">
         <table>
             <thead>
@@ -105,7 +103,6 @@
             </tbody>
         </table>
     </div>
-    </form>
     <div class="pagination-wrap">
         <div class="pagination-info">Showing {{ $vendors->firstItem() }}–{{ $vendors->lastItem() }} of {{ $vendors->total() }}</div>
         {{ $vendors->links('vendor.pagination.simple-tailwind') }}
@@ -113,7 +110,33 @@
     @endif
 </div>
 
+<form id="bulkDeleteForm" method="POST" style="display:none;">
+    @csrf
+</form>
+
 <script>
+    function submitBulkDelete(url) {
+        if (!confirm('Are you sure you want to delete all selected items?')) return;
+        
+        const checkboxes = document.querySelectorAll('.bulk-select:checked');
+        if (checkboxes.length === 0) return;
+        
+        const form = document.getElementById('bulkDeleteForm');
+        form.action = url;
+        
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        
+        checkboxes.forEach(cb => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = cb.value;
+            form.appendChild(input);
+        });
+        
+        form.submit();
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const selectAll = document.getElementById('selectAll');
         const checkboxes = document.querySelectorAll('.bulk-select');

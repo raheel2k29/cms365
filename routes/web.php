@@ -84,6 +84,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Quotes
     Route::post('quotes/bulk-delete', [QuoteController::class, 'bulkDelete'])->name('quotes.bulk-delete');
+    Route::get('quotes/bulk-delete', fn() => redirect()->route('quotes.index'));
     Route::get('quotes/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
     Route::post('quotes/{quote}/send-email', [QuoteController::class, 'sendEmail'])->name('quotes.send-email');
     Route::post('quotes/{quote}/reply', [QuoteController::class, 'reply'])->name('quotes.reply');
@@ -98,14 +99,17 @@ Route::middleware(['auth'])->group(function () {
 
     // Contacts
     Route::post('contacts/bulk-delete', [ContactController::class, 'bulkDelete'])->name('contacts.bulk-delete');
+    Route::get('contacts/bulk-delete', fn() => redirect()->route('contacts.index'));
     Route::resource('contacts', ContactController::class);
 
     // Companies (customers)
     Route::post('customers/bulk-delete', [CustomerController::class, 'bulkDelete'])->name('customers.bulk-delete');
+    Route::get('customers/bulk-delete', fn() => redirect()->route('customers.index'));
     Route::resource('customers', CustomerController::class);
 
     // Vendors
     Route::post('vendors/bulk-delete', [VendorController::class, 'bulkDelete'])->name('vendors.bulk-delete');
+    Route::get('vendors/bulk-delete', fn() => redirect()->route('vendors.index'));
     Route::resource('vendors', VendorController::class);
 
     // Emails (Microsoft 365 inbox — Phase 5)

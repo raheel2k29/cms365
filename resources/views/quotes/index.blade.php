@@ -16,7 +16,7 @@
         <div style="font-weight:700;color:var(--text-primary)">Open Quotes</div>
         <div>
             <input type="text" placeholder="Search quotes..." class="form-control" style="width:250px;font-size:13px;padding:6px 12px;display:inline-block">
-            <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display:none; background:#dc2626; border-color:#dc2626; color:white; margin-left:8px" onclick="if(confirm('Are you sure you want to delete all selected quotes?')) document.getElementById('bulkDeleteForm').submit();">
+            <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display:none; background:#dc2626; border-color:#dc2626; color:white; margin-left:8px" onclick="submitBulkDelete('{{ route('quotes.bulk-delete') }}')">
                 Delete Selected
             </button>
         </div>
@@ -31,8 +31,6 @@
                 <a href="{{ route('quotes.create') }}" class="btn btn-primary" style="margin-top:8px">+ New Quote</a>
             </div>
         @else
-        <form id="bulkDeleteForm" method="POST" action="{{ route('quotes.bulk-delete') }}">
-            @csrf
         <table style="width:100%;border-collapse:collapse;text-align:left;font-size:12px">
             <thead>
                 <tr style="border-bottom:1px solid var(--border);background:#f8fafc;white-space:nowrap">
@@ -92,13 +90,38 @@
                 @endforeach
             </tbody>
         </table>
-        </form>
         @endif
     </div>
     </div>
 </div>
 
+<form id="bulkDeleteForm" method="POST" style="display:none;">
+    @csrf
+</form>
+
 <script>
+    function submitBulkDelete(url) {
+        if (!confirm('Are you sure you want to delete all selected items?')) return;
+        
+        const checkboxes = document.querySelectorAll('.bulk-select:checked');
+        if (checkboxes.length === 0) return;
+        
+        const form = document.getElementById('bulkDeleteForm');
+        form.action = url;
+        
+        form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+        
+        checkboxes.forEach(cb => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = cb.value;
+            form.appendChild(input);
+        });
+        
+        form.submit();
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const selectAll = document.getElementById('selectAll');
         const checkboxes = document.querySelectorAll('.bulk-select');
