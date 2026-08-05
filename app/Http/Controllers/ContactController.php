@@ -90,7 +90,18 @@ class ContactController extends Controller
     public function destroy(Contact $contact)
     {
         $contact->delete();
-        return redirect()->route('contacts.index')
-            ->with('success', 'Contact archived successfully.');
+        return redirect()->route('contacts.index')->with('success', 'Contact deleted successfully.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:contacts,id',
+        ]);
+
+        Contact::whereIn('id', $request->ids)->delete();
+
+        return redirect()->back()->with('success', count($request->ids) . ' contacts deleted successfully.');
     }
 }

@@ -89,7 +89,18 @@ class VendorController extends Controller
     public function destroy(Vendor $vendor)
     {
         $vendor->delete();
-        return redirect()->route('vendors.index')
-            ->with('success', 'Vendor archived successfully.');
+        return redirect()->route('vendors.index')->with('success', 'Vendor deleted successfully.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:vendors,id',
+        ]);
+
+        Vendor::whereIn('id', $request->ids)->delete();
+
+        return redirect()->back()->with('success', count($request->ids) . ' vendors deleted successfully.');
     }
 }

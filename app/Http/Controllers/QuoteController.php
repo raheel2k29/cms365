@@ -271,6 +271,18 @@ class QuoteController extends Controller
         return redirect()->route('quotes.index')->with('success', 'Quote deleted successfully.');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:quotes,id',
+        ]);
+
+        Quote::whereIn('id', $request->ids)->delete();
+
+        return redirect()->back()->with('success', count($request->ids) . ' quotes deleted successfully.');
+    }
+
     public function reply(Request $request, Quote $quote)
     {
         $request->validate([

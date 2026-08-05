@@ -30,6 +30,10 @@
         <a href="{{ route('contacts.index') }}" class="btn btn-ghost btn-sm">Clear</a>
     @endif
     <span style="margin-left:auto;font-size:12.5px;color:var(--text-muted)">{{ $contacts->total() }} contacts</span>
+
+    <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display:none; background:#dc2626; border-color:#dc2626; color:white" onclick="if(confirm('Are you sure you want to delete all selected contacts?')) document.getElementById('bulkDeleteForm').submit();">
+        Delete Selected
+    </button>
 </div>
 </form>
 
@@ -44,10 +48,13 @@
             <a href="{{ route('contacts.create') }}" class="btn btn-primary" style="margin-top:8px">+ New Contact</a>
         </div>
     @else
+    <form id="bulkDeleteForm" method="POST" action="{{ route('contacts.bulk-delete') }}">
+        @csrf
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
+                    <th style="width:40px"><input type="checkbox" id="selectAll"></th>
                     <th>Name</th>
                     <th>Company</th>
                     <th>Position</th>
@@ -59,6 +66,7 @@
             <tbody>
                 @foreach($contacts as $contact)
                 <tr>
+                    <td><input type="checkbox" class="bulk-select" name="ids[]" value="{{ $contact->id }}"></td>
                     <td>
                         <div style="display:flex;align-items:center;gap:10px">
                             <div class="avatar-initials">{{ strtoupper(substr($contact->name,0,2)) }}</div>
@@ -89,10 +97,33 @@
             </tbody>
         </table>
     </div>
+    </form>
     <div class="pagination-wrap">
         <div class="pagination-info">Showing {{ $contacts->firstItem() }}–{{ $contacts->lastItem() }} of {{ $contacts->total() }}</div>
         {{ $contacts->links('vendor.pagination.simple-tailwind') }}
     </div>
     @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.bulk-select');
+        const bulkBtn = document.getElementById('bulkDeleteBtn');
+
+        if (selectAll && checkboxes.length > 0) {
+            selectAll.addEventListener('change', e => {
+                checkboxes.forEach(cb => cb.checked = e.target.checked);
+                toggleBulkBtn();
+            });
+            
+            checkboxes.forEach(cb => cb.addEventListener('change', toggleBulkBtn));
+            
+            function toggleBulkBtn() {
+                const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+                bulkBtn.style.display = anyChecked ? 'inline-block' : 'none';
+            }
+        }
+    });
+</script>
 @endsection

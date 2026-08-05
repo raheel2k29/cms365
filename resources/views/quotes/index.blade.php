@@ -15,7 +15,10 @@
     <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
         <div style="font-weight:700;color:var(--text-primary)">Open Quotes</div>
         <div>
-            <input type="text" placeholder="Search quotes..." class="form-control" style="width:250px;font-size:13px;padding:6px 12px">
+            <input type="text" placeholder="Search quotes..." class="form-control" style="width:250px;font-size:13px;padding:6px 12px;display:inline-block">
+            <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display:none; background:#dc2626; border-color:#dc2626; color:white; margin-left:8px" onclick="if(confirm('Are you sure you want to delete all selected quotes?')) document.getElementById('bulkDeleteForm').submit();">
+                Delete Selected
+            </button>
         </div>
     </div>
     
@@ -28,9 +31,12 @@
                 <a href="{{ route('quotes.create') }}" class="btn btn-primary" style="margin-top:8px">+ New Quote</a>
             </div>
         @else
+        <form id="bulkDeleteForm" method="POST" action="{{ route('quotes.bulk-delete') }}">
+            @csrf
         <table style="width:100%;border-collapse:collapse;text-align:left;font-size:12px">
             <thead>
                 <tr style="border-bottom:1px solid var(--border);background:#f8fafc;white-space:nowrap">
+                    <th style="padding:10px 12px;width:40px"><input type="checkbox" id="selectAll"></th>
                     <th style="padding:10px 12px;color:var(--text-secondary);font-weight:600">Company</th>
                     <th style="padding:10px 12px;color:var(--text-secondary);font-weight:600">Type</th>
                     <th style="padding:10px 12px;color:var(--text-secondary);font-weight:600">Customer Name</th>
@@ -50,6 +56,7 @@
             <tbody>
                 @foreach($quotes as $quote)
                 <tr style="border-bottom:1px solid var(--border);transition:background 0.2s">
+                    <td style="padding:12px"><input type="checkbox" class="bulk-select" name="ids[]" value="{{ $quote->id }}"></td>
                     <td style="padding:12px;font-weight:600">{{ $quote->businessEntity->code ?? 'ESC' }}</td>
                     <td style="padding:12px">{{ $quote->quoteType->code ?? 'SPEC' }}</td>
                     <td style="padding:12px">
@@ -85,7 +92,31 @@
                 @endforeach
             </tbody>
         </table>
+        </form>
         @endif
     </div>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.bulk-select');
+        const bulkBtn = document.getElementById('bulkDeleteBtn');
+
+        if (selectAll && checkboxes.length > 0) {
+            selectAll.addEventListener('change', e => {
+                checkboxes.forEach(cb => cb.checked = e.target.checked);
+                toggleBulkBtn();
+            });
+            
+            checkboxes.forEach(cb => cb.addEventListener('change', toggleBulkBtn));
+            
+            function toggleBulkBtn() {
+                const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+                bulkBtn.style.display = anyChecked ? 'inline-block' : 'none';
+            }
+        }
+    });
+</script>
 @endsection

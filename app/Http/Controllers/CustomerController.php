@@ -94,4 +94,16 @@ class CustomerController extends Controller
         return redirect()->route('customers.index')
             ->with('success', 'Company archived successfully.');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:companies,id',
+        ]);
+
+        Company::whereIn('id', $request->ids)->delete();
+
+        return redirect()->back()->with('success', count($request->ids) . ' companies deleted successfully.');
+    }
 }

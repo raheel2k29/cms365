@@ -32,6 +32,10 @@
         <a href="{{ route('customers.index') }}" class="btn btn-ghost btn-sm">Clear</a>
     @endif
     <span style="margin-left:auto;font-size:12.5px;color:var(--text-muted)">{{ $companies->total() }} companies</span>
+    
+    <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display:none; background:#dc2626; border-color:#dc2626; color:white" onclick="if(confirm('Are you sure you want to delete all selected companies?')) document.getElementById('bulkDeleteForm').submit();">
+        Delete Selected
+    </button>
 </div>
 </form>
 
@@ -49,10 +53,13 @@
             <a href="{{ route('customers.create') }}" class="btn btn-primary" style="margin-top:8px">+ New Company</a>
         </div>
     @else
+    <form id="bulkDeleteForm" method="POST" action="{{ route('customers.bulk-delete') }}">
+        @csrf
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
+                    <th style="width:40px"><input type="checkbox" id="selectAll"></th>
                     <th>Company</th>
                     <th>Industry</th>
                     <th>Country</th>
@@ -66,6 +73,7 @@
             <tbody>
                 @foreach($companies as $company)
                 <tr>
+                    <td><input type="checkbox" class="bulk-select" name="ids[]" value="{{ $company->id }}"></td>
                     <td>
                         <div style="display:flex;align-items:center;gap:10px">
                             <div class="avatar-initials">{{ strtoupper(substr($company->name,0,2)) }}</div>
@@ -119,10 +127,34 @@
             </tbody>
         </table>
     </div>
+    </form>
     <div class="pagination-wrap">
         <div class="pagination-info">Showing {{ $companies->firstItem() }}–{{ $companies->lastItem() }} of {{ $companies->total() }}</div>
         {{ $companies->links('vendor.pagination.simple-tailwind') }}
     </div>
     @endif
 </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.bulk-select');
+        const bulkBtn = document.getElementById('bulkDeleteBtn');
+
+        if (selectAll && checkboxes.length > 0) {
+            selectAll.addEventListener('change', e => {
+                checkboxes.forEach(cb => cb.checked = e.target.checked);
+                toggleBulkBtn();
+            });
+            
+            checkboxes.forEach(cb => cb.addEventListener('change', toggleBulkBtn));
+            
+            function toggleBulkBtn() {
+                const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+                bulkBtn.style.display = anyChecked ? 'inline-block' : 'none';
+            }
+        }
+    });
+</script>
 @endsection
