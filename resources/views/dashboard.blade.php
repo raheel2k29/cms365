@@ -3,7 +3,7 @@
 @section('page-title', 'Dashboard')
 
 @section('topbar-actions')
-    <a href="{{ route('quotes.index') }}" class="btn btn-ghost btn-sm" id="export-csv-btn" style="margin-right:4px">
+    <a href="{{ route('reports.export') }}" class="btn btn-ghost btn-sm" id="export-csv-btn" style="margin-right:4px">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
         Export CSV
     </a>
@@ -203,7 +203,7 @@
         <div class="table-card-header">
             <div class="table-card-title">Recent Quotes</div>
             <div style="display:flex;gap:8px">
-                <a href="{{ route('reports.index') }}" class="btn btn-ghost btn-sm">
+                <a href="{{ route('reports.export') }}" class="btn btn-ghost btn-sm">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     Export CSV
                 </a>

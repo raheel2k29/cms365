@@ -2,7 +2,7 @@
 @section('title', 'Reports Dashboard')
 @section('page-title', 'Reports Dashboard')
 @section('topbar-actions')
-<form action="{{ route('reports.index') }}" method="GET" style="display:flex;gap:12px;align-items:center;margin:0">
+<form action="{{ route('reports.index') }}" method="GET" id="report-filter-form" style="display:flex;gap:12px;align-items:center;margin:0">
     <div style="display:flex;align-items:center;gap:8px">
         <label style="font-size:12px;color:var(--text-muted)">From:</label>
         <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') }}" class="form-control" style="font-size:12px;padding:6px 12px;width:auto">
@@ -12,7 +12,26 @@
         <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') }}" class="form-control" style="font-size:12px;padding:6px 12px;width:auto">
     </div>
     <button type="submit" class="btn btn-primary" style="padding:6px 16px;font-size:12px">Apply</button>
+    
+    <button type="button" class="btn btn-ghost btn-sm" onclick="exportReport()" style="margin-left:8px">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Export CSV
+    </button>
 </form>
+
+<script>
+function exportReport() {
+    const form = document.getElementById('report-filter-form');
+    const originalAction = form.action;
+    
+    // Change action to export route
+    form.action = "{{ route('reports.export') }}";
+    form.submit();
+    
+    // Restore original action after small delay
+    setTimeout(() => { form.action = originalAction; }, 100);
+}
+</script>
 @endsection
 
 @push('styles')
