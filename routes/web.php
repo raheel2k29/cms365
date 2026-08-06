@@ -135,24 +135,3 @@ Route::middleware(['auth'])->group(function () {
 require __DIR__.'/auth.php';
 
 
-Route::get('/setup-db', function () {
-    try {
-        Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
-        // Run specific seeders or default seeder if they exist
-        Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-        return 'Database migrated and seeded successfully!';
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
-
-
-Route::get('/debug-env', function () {
-    return response()->json([
-        'DB_CONNECTION' => env('DB_CONNECTION'),
-        'POSTGRES_URL' => env('POSTGRES_URL') ? 'set' : 'not set',
-        'DATABASE_URL' => env('DATABASE_URL') ? 'set' : 'not set',
-        'PGHOST' => env('PGHOST') ? 'set' : 'not set',
-        'NEON' => array_filter($_ENV, function($k) { return str_contains($k, 'PG') || str_contains($k, 'DB') || str_contains($k, 'DATABASE'); }, ARRAY_FILTER_USE_KEY)
-    ]);
-});
