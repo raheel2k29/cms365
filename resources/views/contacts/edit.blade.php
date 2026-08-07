@@ -16,13 +16,14 @@
         <div class="form-card-body">
             <div class="form-row single">
                 <div class="form-group">
-                    <label class="form-label" for="company_id">Company</label>
-                    <select id="company_id" name="company_id" class="form-control">
-                        <option value="">-- No Company --</option>
+                    <label class="form-label" for="company_id">Company <span class="required-star">*</span></label>
+                    <select id="company_id" name="company_id" class="form-control" required>
+                        <option value="">-- Select Company --</option>
                         @foreach($companies as $id => $name)
-                            <option value="{{ $id }}" {{ old('company_id', $contact->company_id) == $id ? 'selected' : '' }}>{{ $name }}</option>
+                            <option value="{{ $id }}" {{ (old('company_id', $contact->company_id) == $id) ? 'selected' : '' }}>{{ $name }}</option>
                         @endforeach
                     </select>
+                    @error('company_id')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
             </div>
             <div class="form-row">
@@ -30,7 +31,6 @@
                     <label class="form-label" for="name">Full Name <span class="required-star">*</span></label>
                     <input id="name" name="name" type="text" class="form-control" value="{{ old('name', $contact->name) }}" required>
                     @error('name')<div class="form-error">{{ $message }}</div>@enderror
-                </div>
                 </div>
             </div>
             <div class="form-row">

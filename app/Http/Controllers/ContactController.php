@@ -40,7 +40,7 @@ class ContactController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'company_id' => 'nullable|exists:companies,id',
+            'company_id' => 'required|exists:companies,id',
             'name'       => 'required|string|max:255',
             'email'      => 'required|email|max:255',
             'phone'      => 'nullable|string|max:50',
@@ -71,7 +71,7 @@ class ContactController extends Controller
     public function update(Request $request, Contact $contact)
     {
         $data = $request->validate([
-            'company_id' => 'nullable|exists:companies,id',
+            'company_id' => 'required|exists:companies,id',
             'name'       => 'required|string|max:255',
             'email'      => 'required|email|max:255',
             'phone'      => 'nullable|string|max:50',
