@@ -75,7 +75,12 @@ class SyncEmails extends Command
                 }
 
                 $contact = Contact::where('email', $senderEmail)->first();
-                if (!$contact) {
+                
+                // Only auto-create if it doesn't look like an automated system email
+                $isSystem = preg_match('/(noreply|no-reply|do-not-reply|do_not_reply|mailer-daemon|postmaster|bounce|notifications?|alerts?)/i', $senderEmail) 
+                    || in_array($domain, ['github.com', 'microsoft.com', 'google.com', 'godaddy.com', 'ppe-hosted.com', 'onmicrosoft.com', 'mailshake.com', 'intuit.com']);
+
+                if (!$contact && !$isSystem) {
                     $company = Company::firstOrCreate(
                         ['name' => $companyName],
                         ['notes' => 'Auto-created from email sync']
