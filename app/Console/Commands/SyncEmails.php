@@ -103,6 +103,13 @@ class SyncEmails extends Command
 
                 $body = $msg['body'] ?? null;
                 $content = $body ? ($body['content'] ?? '') : '';
+                $contentType = strtolower($body['contentType'] ?? 'html');
+                
+                $htmlContent = $content;
+                if ($contentType === 'text') {
+                    // Convert raw text newlines to <br> tags so they render properly in the CRM views
+                    $htmlContent = nl2br(htmlspecialchars($content));
+                }
 
                 // 3. Create Email Record
                 $email = Email::create([
@@ -115,7 +122,7 @@ class SyncEmails extends Command
                     'from_email' => $senderEmail,
                     'to_email' => config('services.msgraph.shared_mailbox'),
                     'subject' => $subject,
-                    'body_html' => $content,
+                    'body_html' => $htmlContent,
                     'body_text' => strip_tags($content),
                     'has_attachments' => $msg['hasAttachments'] ?? false,
                     'sent_at' => Carbon::parse($msg['sentDateTime']),

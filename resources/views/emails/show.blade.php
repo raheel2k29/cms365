@@ -44,7 +44,12 @@
     
     <div class="p-6 prose max-w-none text-gray-800" style="min-height: 300px;">
         @if($email->body_html)
-            {!! $email->body_html !!}
+            @if(strip_tags($email->body_html) === $email->body_html)
+                {{-- No HTML tags detected, treat as plain text --}}
+                {!! nl2br(e($email->body_html)) !!}
+            @else
+                {!! $email->body_html !!}
+            @endif
         @else
             {!! nl2br(e($email->body_text)) !!}
         @endif
