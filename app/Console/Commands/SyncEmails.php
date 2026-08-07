@@ -67,32 +67,8 @@ class SyncEmails extends Command
                     continue;
                 }
 
-                // 1. Match or Create Contact & Company
-                $domain = Str::after($senderEmail, '@');
-                $companyName = explode('@', $senderEmail)[0] . ' Company';
-                if ($domain !== 'gmail.com' && $domain !== 'yahoo.com' && $domain !== 'hotmail.com' && $domain !== 'example.com') {
-                    $companyName = ucfirst(explode('.', $domain)[0]);
-                }
-
-                $contact = Contact::where('email', $senderEmail)->first();
-                
-                // Only auto-create if it doesn't look like an automated system email
-                $isSystem = preg_match('/(noreply|no-reply|do-not-reply|do_not_reply|mailer-daemon|postmaster|bounce|notifications?|alerts?)/i', $senderEmail) 
-                    || in_array($domain, ['github.com', 'microsoft.com', 'google.com', 'godaddy.com', 'ppe-hosted.com', 'onmicrosoft.com', 'mailshake.com', 'intuit.com']);
-
-                if (!$contact && !$isSystem) {
-                    $company = Company::firstOrCreate(
-                        ['name' => $companyName],
-                        ['notes' => 'Auto-created from email sync']
-                    );
-
-                    $contact = Contact::create([
-                        'company_id' => $company->id,
-                        'name' => $senderName,
-                        'email' => $senderEmail,
-                        'is_primary' => true,
-                    ]);
-                }
+                // 1. We no longer auto-create Contacts & Companies from emails per user request.
+                // The CRM will only sync the email thread. Contacts must be created manually.
 
                 // 2. Thread Matching
                 $conversationId = $msg['conversationId'] ?? null;
