@@ -22,10 +22,10 @@
 
         <div style="margin-bottom:24px">
             <label style="display:block; font-weight:600; margin-bottom:8px">2. Email To (Contact)</label>
-            <select name="contact_email" id="contact-select" class="form-control" required style="width:100%; padding:10px">
-                <option value="">-- Select a Vendor First --</option>
+            <select name="contact_emails[]" id="contact-select" class="form-control" multiple required style="width:100%; padding:10px; min-height: 120px;">
+                <option value="" disabled>-- Select a Vendor First --</option>
             </select>
-            <div style="font-size:11px; color:var(--text-muted); margin-top:4px">Shows contacts for the selected vendor and their rep agency (if applicable).</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:4px">Hold Ctrl (Windows) or Cmd (Mac) to select multiple contacts.</div>
         </div>
 
         <div style="margin-bottom:24px">
@@ -80,9 +80,12 @@ Thank you!</textarea>
     const contactSelect = document.getElementById('contact-select');
 
     vendorSelect.addEventListener('change', function() {
-        contactSelect.innerHTML = '<option value="">-- Select Contact --</option>';
+        contactSelect.innerHTML = '';
         const vendorId = this.value;
-        if (!vendorId) return;
+        if (!vendorId) {
+            contactSelect.innerHTML = '<option value="" disabled>-- Select a Vendor First --</option>';
+            return;
+        }
 
         const vendor = vendorsData.find(v => v.id == vendorId);
         if (!vendor) return;

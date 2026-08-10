@@ -77,9 +77,46 @@
             <div class="list-card-header">
                 <div class="list-card-title">Quote Requests <span class="list-count">({{ $vendor->quote_requests_count }})</span></div>
             </div>
-            <div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
-                Vendor quote request history will appear here in Phase 4.
-            </div>
+            @if($vendor->quoteRequests->isEmpty())
+                <div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
+                    No quote requests have been sent to this vendor yet.
+                </div>
+            @else
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Quote Project</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($vendor->quoteRequests as $request)
+                            <tr>
+                                <td>{{ $request->requested_at ? \Carbon\Carbon::parse($request->requested_at)->format('M d, Y') : 'Unknown' }}</td>
+                                <td>{{ $request->quote ? $request->quote->project_name : 'Deleted Quote' }}</td>
+                                <td>
+                                    @if($request->status === 'pending')
+                                        <span style="background:var(--warning-soft);color:var(--warning);padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600">Pending</span>
+                                    @elseif($request->status === 'received')
+                                        <span style="background:var(--success-soft);color:var(--success);padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600">Received</span>
+                                    @else
+                                        <span style="background:var(--bg-card-hover);padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600">{{ ucfirst($request->status) }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($request->quote)
+                                        <a href="{{ route('quotes.show', $request->quote) }}" class="btn btn-ghost btn-sm">View Quote</a>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
     </div>
 </div>

@@ -17,14 +17,18 @@ class QuoteVendorRequestController extends Controller
     {
         $request->validate([
             'vendor_id' => 'required|exists:vendors,id',
-            'contact_email' => 'required|email',
+            'contact_emails' => 'required|array|min:1',
+            'contact_emails.*' => 'email',
             'item_ids' => 'required|array',
             'item_ids.*' => 'exists:quote_items,id',
             'message' => 'required|string',
         ]);
 
         $vendor = \App\Models\Vendor::findOrFail($request->vendor_id);
-        $toEmail = $request->contact_email;
+        
+        $emails = $request->contact_emails;
+        $toEmail = array_shift($emails); // First email is TO
+        $ccEmails = $emails; // The rest are CC
 
         // We could generate a PDF or just put the items in the HTML.
         // Let's create an HTML table of items.
@@ -50,7 +54,7 @@ class QuoteVendorRequestController extends Controller
         $subject = "Pricing Request - {$quote->project_name} (Quote #{$quote->quote_number})";
 
         $outlookService = new \App\Services\OutlookService();
-        $success = $outlookService->sendEmail($toEmail, $subject, $htmlContent);
+        $success = $outlookService->sendEmail($toEmail, $subject, $htmlContent, [], $ccEmails);
 
         if ($success) {
             // Save vendor request record
@@ -69,6 +73,7 @@ class QuoteVendorRequestController extends Controller
                 'direction'   => 'outbound',
                 'from_email'  => env('SHARED_MAILBOX_ADDRESS', 'sales@electricsupplyconnections.com'),
                 'to_email'    => $toEmail,
+                'cc_emails'   => !empty($ccEmails) ? implode(', ', $ccEmails) : null,
                 'subject'     => $subject,
                 'body_html'   => $htmlContent,
                 'body_text'   => strip_tags(str_replace('<br>', "\n", $htmlContent)),
