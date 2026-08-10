@@ -269,7 +269,11 @@ class QuoteController extends Controller
             $quote->status = 'quote_sent';
             $quote->save();
 
-            return redirect()->back()->with('success', "Quote successfully emailed to {$toEmail}!");
+            $successMessage = "Quote successfully emailed to {$toEmail}!";
+            if (!empty($ccEmails)) {
+                $successMessage = "Quote successfully emailed to {$toEmail} and CC'd to " . implode(', ', $ccEmails) . "!";
+            }
+            return redirect()->back()->with('success', $successMessage);
         }
 
         return redirect()->back()->with('error', 'Failed to send email. Please check your MS Graph connection settings.');
@@ -328,7 +332,11 @@ class QuoteController extends Controller
                 'sent_at'     => now(),
             ]);
 
-            return redirect()->back()->with('success', 'Reply sent successfully!');
+            $successMessage = 'Reply sent successfully!';
+            if (!empty($ccEmails)) {
+                $successMessage = "Reply sent successfully to {$request->to_email} and CC'd to " . implode(', ', $ccEmails) . "!";
+            }
+            return redirect()->back()->with('success', $successMessage);
         }
 
         return redirect()->back()->with('error', 'Failed to send reply via Microsoft Graph.');
