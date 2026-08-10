@@ -9,7 +9,7 @@ class QuoteVendorRequestController extends Controller
     public function create(\App\Models\Quote $quote)
     {
         $quote->load('items', 'company');
-        $vendors = \App\Models\Vendor::orderBy('name')->get();
+        $vendors = \App\Models\Vendor::with(['contacts', 'repAgency.contacts'])->orderBy('name')->get();
         return view('quotes.vendor_requests.create', compact('quote', 'vendors'));
     }
 
@@ -17,17 +17,14 @@ class QuoteVendorRequestController extends Controller
     {
         $request->validate([
             'vendor_id' => 'required|exists:vendors,id',
+            'contact_email' => 'required|email',
             'item_ids' => 'required|array',
             'item_ids.*' => 'exists:quote_items,id',
             'message' => 'required|string',
         ]);
 
         $vendor = \App\Models\Vendor::findOrFail($request->vendor_id);
-        
-        // Ensure vendor has email
-        if (!$vendor->email) {
-            return redirect()->back()->with('error', 'The selected vendor does not have an email address.');
-        }
+        $toEmail = $request->contact_email;
 
         // We could generate a PDF or just put the items in the HTML.
         // Let's create an HTML table of items.
@@ -53,7 +50,7 @@ class QuoteVendorRequestController extends Controller
         $subject = "Pricing Request - {$quote->project_name} (Quote #{$quote->quote_number})";
 
         $outlookService = new \App\Services\OutlookService();
-        $success = $outlookService->sendEmail($vendor->email, $subject, $htmlContent);
+        $success = $outlookService->sendEmail($toEmail, $subject, $htmlContent);
 
         if ($success) {
             // Save vendor request record
@@ -71,7 +68,7 @@ class QuoteVendorRequestController extends Controller
                 'thread_type' => 'vendor',
                 'direction'   => 'outbound',
                 'from_email'  => env('SHARED_MAILBOX_ADDRESS', 'sales@electricsupplyconnections.com'),
-                'to_email'    => $vendor->email,
+                'to_email'    => $toEmail,
                 'subject'     => $subject,
                 'body_html'   => $htmlContent,
                 'body_text'   => strip_tags(str_replace('<br>', "\n", $htmlContent)),
