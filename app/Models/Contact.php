@@ -12,7 +12,7 @@ class Contact extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'company_id', 'name', 'email', 'phone', 'position', 'department', 'is_primary'
+        'company_id', 'vendor_id', 'rep_agency_id', 'name', 'email', 'phone', 'position', 'department', 'is_primary'
     ];
 
     protected $casts = ['is_primary' => 'boolean'];
@@ -20,6 +20,16 @@ class Contact extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
+    public function repAgency(): BelongsTo
+    {
+        return $this->belongsTo(RepAgency::class);
     }
 
     public function quotes(): HasMany

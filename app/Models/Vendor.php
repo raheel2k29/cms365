@@ -11,12 +11,22 @@ class Vendor extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name', 'contact_person', 'default_email', 'phone', 'country', 'specialty', 'is_active', 'notes'
+        'rep_agency_id', 'name', 'contact_person', 'default_email', 'phone', 'country', 'specialty', 'is_active', 'notes'
     ];
 
     protected $casts = [
         'is_active' => 'boolean'
     ];
+
+    public function repAgency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(RepAgency::class);
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(Contact::class);
+    }
 
     public function quoteRequests(): HasMany
     {
