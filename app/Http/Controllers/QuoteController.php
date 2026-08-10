@@ -207,7 +207,8 @@ class QuoteController extends Controller
         $outlookService = new \App\Services\OutlookService();
         $toEmail = $quote->contact->email;
         $subject = $request->input('subject', "Your Quote is Ready: {$quote->project_name}");
-        $ccEmails = array_filter(array_map('trim', explode(',', $request->input('cc_emails', ''))));
+        preg_match_all('/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/', $request->input('cc_emails', ''), $matches);
+        $ccEmails = array_unique($matches[0]);
         
         if ($request->has('message')) {
             $htmlContent = nl2br(e($request->input('message')));
@@ -301,7 +302,8 @@ class QuoteController extends Controller
             'cc_emails' => 'nullable|string'
         ]);
 
-        $ccEmails = array_filter(array_map('trim', explode(',', $request->input('cc_emails', ''))));
+        preg_match_all('/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/', $request->input('cc_emails', ''), $matches);
+        $ccEmails = array_unique($matches[0]);
 
         $subject = 'Re: Your Quote is Ready: ' . $quote->project_name;
         if ($request->thread_type === 'vendor') {
