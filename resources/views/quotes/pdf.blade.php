@@ -164,7 +164,7 @@
                 <td>
                     {{ $item->description }}
                     @if($item->spec_sheet_url)
-                        <br><a href="{{ $item->spec_sheet_url }}" style="font-size:11px;color:#2563eb;text-decoration:none;">View Spec Sheet &rarr;</a>
+                        <br><a href="{{ $item->spec_sheet_url }}" style="font-size:11px;color:#2563eb;text-decoration:none;">View Spec Sheet &gt;</a>
                     @endif
                 </td>
                 <td>{{ $item->unit }}</td>
