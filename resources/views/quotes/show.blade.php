@@ -106,7 +106,14 @@
                         <tbody>
                             @foreach($quote->items as $item)
                             <tr style="border-bottom:1px solid var(--border-light)">
-                                <td style="padding:12px 0">{{ $item->description }}</td>
+                                <td style="padding:12px 0">
+                                    {{ $item->description }}
+                                    @if($item->spec_sheet_url)
+                                        <div style="margin-top: 4px;">
+                                            <a href="{{ $item->spec_sheet_url }}" target="_blank" style="font-size: 11px; color: var(--accent); text-decoration: none;">📄 Spec Sheet</a>
+                                        </div>
+                                    @endif
+                                </td>
                                 <td style="padding:12px 0">{{ $item->qty }}</td>
                                 <td style="padding:12px 0">${{ number_format($item->sell_price, 2) }}</td>
                                 <td style="padding:12px 0;text-align:right;font-weight:600">${{ number_format($item->line_total, 2) }}</td>
@@ -339,6 +346,18 @@
     <h3 style="margin-top:0">Send Quote PDF to {{ $quote->contact->email ?? 'Customer' }}</h3>
     <form action="{{ route('quotes.send-email', $quote) }}" method="POST">
         @csrf
+        @php
+            $outboundCount = $quote->emails->where('thread_type', 'customer')->where('direction', 'outbound')->count();
+            if ($outboundCount == 0) {
+                $defaultSubject = "Your Quote is Ready: {$quote->project_name}";
+            } else {
+                $defaultSubject = "Updated Quote (v" . ($outboundCount + 1) . "): {$quote->project_name}";
+            }
+        @endphp
+        <div style="margin-bottom:16px;">
+            <label style="font-weight:600; display:block; margin-bottom:8px">Subject:</label>
+            <input type="text" name="subject" class="form-control" value="{{ $defaultSubject }}" style="width:100%; padding:12px; font-size:14px; border-radius:4px; border:1px solid var(--border);" required>
+        </div>
         <div style="margin-bottom:16px;">
             <label style="font-weight:600; display:block; margin-bottom:8px">Email Message:</label>
             <textarea name="message" class="form-control" rows="8" style="width:100%; padding:12px; font-size:14px; border-radius:4px; border:1px solid var(--border);" required>Hello {{ $quote->contact->name ?? 'Customer' }},

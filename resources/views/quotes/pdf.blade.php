@@ -161,7 +161,12 @@
                 <td>{{ $item->type }}</td>
                 <td class="text-right">{{ floatval($item->qty) }}</td>
                 <td>{{ $item->vendor ? $item->vendor->name : '' }}</td>
-                <td>{{ $item->description }}</td>
+                <td>
+                    {{ $item->description }}
+                    @if($item->spec_sheet_url)
+                        <br><a href="{{ $item->spec_sheet_url }}" style="font-size:11px;color:#2563eb;text-decoration:none;">📄 View Spec Sheet</a>
+                    @endif
+                </td>
                 <td>{{ $item->unit }}</td>
                 <td class="text-right">${{ number_format($item->sell_price, 2) }}</td>
                 <td class="text-right">${{ number_format($item->line_total, 2) }}</td>

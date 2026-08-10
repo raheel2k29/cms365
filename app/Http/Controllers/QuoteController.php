@@ -114,6 +114,7 @@ class QuoteController extends Controller
             'status'       => 'nullable|string',
             'items'        => 'nullable|array',
             'items.*.description' => 'nullable|string',
+            'items.*.spec_sheet_url' => 'nullable|url',
             'items.*.qty'         => 'required|numeric|min:0.01',
             'items.*.cost_price'  => 'required|numeric|min:0',
             'items.*.sell_price'  => 'required|numeric|min:0',
@@ -148,6 +149,7 @@ class QuoteController extends Controller
                     $quote->items()->create([
                         'sort_order' => $index,
                         'description' => $itemData['description'] ?? 'Item',
+                        'spec_sheet_url' => $itemData['spec_sheet_url'] ?? null,
                         'qty' => $itemData['qty'],
                         'cost_price' => $itemData['cost_price'],
                         'sell_price' => $itemData['sell_price'],
@@ -199,7 +201,7 @@ class QuoteController extends Controller
         // 4. Send Email via MS Graph
         $outlookService = new \App\Services\OutlookService();
         $toEmail = $quote->contact->email;
-        $subject = "Your Quote is Ready: {$quote->project_name}";
+        $subject = $request->input('subject', "Your Quote is Ready: {$quote->project_name}");
         
         if ($request->has('message')) {
             $htmlContent = nl2br(e($request->input('message')));

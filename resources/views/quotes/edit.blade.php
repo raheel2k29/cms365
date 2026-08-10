@@ -94,10 +94,14 @@
                                 </button>
                             </div>
                             
-                            <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+                            <div style="display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
                                 <div>
                                     <label style="font-size:11px;color:var(--text-muted);font-weight:600">Description</label>
                                     <input type="text" x-model="item.description" :name="`items[${index}][description]`" class="form-control" placeholder="Item description">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px;color:var(--text-muted);font-weight:600">Spec Sheet Link</label>
+                                    <input type="url" x-model="item.spec_sheet_url" :name="`items[${index}][spec_sheet_url]`" class="form-control" placeholder="https://...">
                                 </div>
                                 <div>
                                     <label style="font-size:11px;color:var(--text-muted);font-weight:600">Qty</label>
@@ -209,6 +213,7 @@ document.addEventListener('alpine:init', () => {
                 this.items = itemsToLoad.map(item => ({
                     id: item.id || 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     description: item.description || '',
+                    spec_sheet_url: item.spec_sheet_url || '',
                     qty: parseFloat(item.qty) || 1,
                     cost_price: parseFloat(item.cost_price) || 0,
                     sell_price: parseFloat(item.sell_price) || 0,
@@ -228,6 +233,7 @@ document.addEventListener('alpine:init', () => {
             this.items.push({
                 id: 'new_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 description: '',
+                spec_sheet_url: '',
                 qty: 1,
                 cost_price: 0,
                 sell_price: 0,
