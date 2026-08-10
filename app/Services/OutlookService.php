@@ -116,7 +116,7 @@ class OutlookService
      * @param array $attachments Array of absolute file paths to attach
      * @return bool
      */
-    public function sendEmail(string $toEmail, string $subject, string $contentHtml, array $attachments = [])
+    public function sendEmail(string $toEmail, string $subject, string $contentHtml, array $attachments = [], array $ccEmails = [])
     {
         $token = $this->getAccessToken();
         if (!$token) return false;
@@ -142,6 +142,19 @@ class OutlookService
             ],
             'saveToSentItems' => 'true'
         ];
+
+        if (!empty($ccEmails)) {
+            $ccRecipients = [];
+            foreach ($ccEmails as $cc) {
+                $cc = trim($cc);
+                if (filter_var($cc, FILTER_VALIDATE_EMAIL)) {
+                    $ccRecipients[] = ['emailAddress' => ['address' => $cc]];
+                }
+            }
+            if (!empty($ccRecipients)) {
+                $payload['message']['ccRecipients'] = $ccRecipients;
+            }
+        }
 
         // Process attachments if any exist
         if (!empty($attachments)) {

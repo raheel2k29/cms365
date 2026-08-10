@@ -15,6 +15,7 @@ class Email extends Model
         'from_name',
         'from_email',
         'to_email',
+        'cc_emails',
         'subject',
         'body_html',
         'body_text',

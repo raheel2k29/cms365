@@ -207,7 +207,12 @@
                         @foreach($customerEmails as $email)
                         <div class="email-bubble {{ $email->direction === 'inbound' ? 'email-inbound' : 'email-outbound' }}">
                             <div class="email-meta">
-                                <div><strong>{{ $email->from_name ?: $email->from_email }}</strong> to {{ $email->to_email }}</div>
+                                <div>
+                                    <strong>{{ $email->from_name ?: $email->from_email }}</strong> to {{ $email->to_email }}
+                                    @if($email->cc_emails)
+                                        <br><span style="color:var(--text-muted)">cc: {{ $email->cc_emails }}</span>
+                                    @endif
+                                </div>
                                 <div>{{ $email->sent_at ? $email->sent_at->format('M d, g:i A') : $email->created_at->format('M d, g:i A') }}</div>
                             </div>
                             <div class="email-subject">{{ $email->subject }}</div>
@@ -238,6 +243,9 @@
                         @csrf
                         <input type="hidden" name="thread_type" value="customer">
                         <input type="hidden" name="to_email" value="{{ $quote->contact->email }}">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:8px">
+                            <input type="text" name="cc_emails" class="form-control" placeholder="CC (comma-separated)..." style="padding:10px; font-size:13px">
+                        </div>
                         <div style="margin-bottom:8px">
                             <textarea name="message" class="form-control" rows="3" placeholder="Reply to customer..." required style="width:100%; padding:10px; font-size:13px"></textarea>
                         </div>
@@ -257,7 +265,12 @@
                         @foreach($vendorEmails as $email)
                         <div class="email-bubble {{ $email->direction === 'inbound' ? 'email-inbound' : 'email-outbound' }}">
                             <div class="email-meta">
-                                <div><strong>{{ $email->from_name ?: $email->from_email }}</strong> to {{ $email->to_email }}</div>
+                                <div>
+                                    <strong>{{ $email->from_name ?: $email->from_email }}</strong> to {{ $email->to_email }}
+                                    @if($email->cc_emails)
+                                        <br><span style="color:var(--text-muted)">cc: {{ $email->cc_emails }}</span>
+                                    @endif
+                                </div>
                                 <div>{{ $email->sent_at ? $email->sent_at->format('M d, g:i A') : $email->created_at->format('M d, g:i A') }}</div>
                             </div>
                             <div class="email-subject">{{ $email->subject }}</div>
@@ -357,6 +370,10 @@
         <div style="margin-bottom:16px;">
             <label style="font-weight:600; display:block; margin-bottom:8px">Subject:</label>
             <input type="text" name="subject" class="form-control" value="{{ $defaultSubject }}" style="width:100%; padding:12px; font-size:14px; border-radius:4px; border:1px solid var(--border);" required>
+        </div>
+        <div style="margin-bottom:16px;">
+            <label style="font-weight:600; display:block; margin-bottom:8px">CC (comma-separated, optional):</label>
+            <input type="text" name="cc_emails" class="form-control" placeholder="example1@test.com, example2@test.com" style="width:100%; padding:12px; font-size:14px; border-radius:4px; border:1px solid var(--border);">
         </div>
         <div style="margin-bottom:16px;">
             <label style="font-weight:600; display:block; margin-bottom:8px">Email Message:</label>

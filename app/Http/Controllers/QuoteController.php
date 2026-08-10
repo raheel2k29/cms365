@@ -207,6 +207,7 @@ class QuoteController extends Controller
         $outlookService = new \App\Services\OutlookService();
         $toEmail = $quote->contact->email;
         $subject = $request->input('subject', "Your Quote is Ready: {$quote->project_name}");
+        $ccEmails = array_filter(array_map('trim', explode(',', $request->input('cc_emails', ''))));
         
         if ($request->has('message')) {
             $htmlContent = nl2br(e($request->input('message')));
@@ -220,7 +221,7 @@ class QuoteController extends Controller
             ";
         }
 
-        $success = $outlookService->sendEmail($toEmail, $subject, $htmlContent, [$tempPath]);
+        $success = $outlookService->sendEmail($toEmail, $subject, $htmlContent, [$tempPath], $ccEmails);
 
         if ($success) {
             // Save the email to the database so it shows up in the thread
@@ -229,6 +230,7 @@ class QuoteController extends Controller
                 'direction'   => 'outbound',
                 'from_email'  => env('SHARED_MAILBOX_ADDRESS', 'sales@electricsupplyconnections.com'),
                 'to_email'    => $toEmail,
+                'cc_emails'   => implode(', ', $ccEmails),
                 'subject'     => $subject,
                 'body_html'   => $htmlContent,
                 'body_text'   => strip_tags(str_replace('<br>', "\n", $htmlContent)),
@@ -295,8 +297,11 @@ class QuoteController extends Controller
         $request->validate([
             'message' => 'required|string',
             'thread_type' => 'required|in:customer,vendor',
-            'to_email' => 'required|email'
+            'to_email' => 'required|email',
+            'cc_emails' => 'nullable|string'
         ]);
+
+        $ccEmails = array_filter(array_map('trim', explode(',', $request->input('cc_emails', ''))));
 
         $subject = 'Re: Your Quote is Ready: ' . $quote->project_name;
         if ($request->thread_type === 'vendor') {
@@ -306,7 +311,7 @@ class QuoteController extends Controller
         $htmlContent = nl2br(e($request->message));
         
         $outlookService = new \App\Services\OutlookService();
-        $success = $outlookService->sendEmail($request->to_email, $subject, $htmlContent);
+        $success = $outlookService->sendEmail($request->to_email, $subject, $htmlContent, [], $ccEmails);
 
         if ($success) {
             $quote->emails()->create([
@@ -314,6 +319,7 @@ class QuoteController extends Controller
                 'direction'   => 'outbound',
                 'from_email'  => env('SHARED_MAILBOX_ADDRESS', 'sales@electricsupplyconnections.com'),
                 'to_email'    => $request->to_email,
+                'cc_emails'   => implode(', ', $ccEmails),
                 'subject'     => $subject,
                 'body_html'   => $htmlContent,
                 'body_text'   => $request->message,
