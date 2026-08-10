@@ -114,7 +114,7 @@ class QuoteController extends Controller
             'status'       => 'nullable|string',
             'items'        => 'nullable|array',
             'items.*.description' => 'nullable|string',
-            'items.*.spec_sheet_url' => 'nullable|url',
+            'items.*.spec_sheet_url' => 'nullable|string',
             'items.*.qty'         => 'required|numeric|min:0.01',
             'items.*.cost_price'  => 'required|numeric|min:0',
             'items.*.sell_price'  => 'required|numeric|min:0',
@@ -143,13 +143,18 @@ class QuoteController extends Controller
             if ($request->has('items')) {
                 $quote->items()->delete(); // simplify by replacing
                 foreach ($validated['items'] as $index => $itemData) {
+                    $specSheetUrl = $itemData['spec_sheet_url'] ?? null;
+                    if ($specSheetUrl && !preg_match("~^(?:f|ht)tps?://~i", $specSheetUrl)) {
+                        $specSheetUrl = "https://" . $specSheetUrl;
+                    }
+                    
                     $lineTotal = $itemData['qty'] * $itemData['sell_price'];
                     $marginPct = $itemData['sell_price'] > 0 ? (($itemData['sell_price'] - $itemData['cost_price']) / $itemData['sell_price']) * 100 : 0;
                     
                     $quote->items()->create([
                         'sort_order' => $index,
                         'description' => $itemData['description'] ?? 'Item',
-                        'spec_sheet_url' => $itemData['spec_sheet_url'] ?? null,
+                        'spec_sheet_url' => $specSheetUrl,
                         'qty' => $itemData['qty'],
                         'cost_price' => $itemData['cost_price'],
                         'sell_price' => $itemData['sell_price'],
