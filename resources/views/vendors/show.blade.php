@@ -75,6 +75,45 @@
     <div style="display:flex;flex-direction:column;gap:20px">
         <div class="list-card">
             <div class="list-card-header">
+                <div class="list-card-title">Contacts <span class="list-count">({{ $vendor->contacts->count() }})</span></div>
+                <a href="{{ route('contacts.create', ['vendor_id' => $vendor->id]) }}" class="btn btn-primary btn-sm">Add Contact</a>
+            </div>
+            @if($vendor->contacts->isEmpty())
+                <div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
+                    No contacts added yet.
+                </div>
+            @else
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($vendor->contacts as $contact)
+                            <tr>
+                                <td>
+                                    <div style="font-weight:500;color:var(--text-primary)">{{ $contact->name }}</div>
+                                    <div style="font-size:11px;color:var(--text-muted)">{{ $contact->position ?? 'No title' }}</div>
+                                </td>
+                                <td><a href="mailto:{{ $contact->email }}" style="color:var(--text-primary);text-decoration:none">{{ $contact->email }}</a></td>
+                                <td>{{ $contact->phone ?? '—' }}</td>
+                                <td>
+                                    <a href="{{ route('contacts.edit', $contact) }}" class="btn btn-ghost btn-sm">Edit</a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+        <div class="list-card">
+            <div class="list-card-header">
                 <div class="list-card-title">Quote Requests <span class="list-count">({{ $vendor->quote_requests_count }})</span></div>
             </div>
             @if($vendor->quoteRequests->isEmpty())

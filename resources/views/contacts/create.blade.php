@@ -16,14 +16,20 @@
         <div class="form-card-body">
             <div class="form-row single">
                 <div class="form-group">
-                    <label class="form-label" for="company_id">Company <span class="required-star">*</span></label>
-                    <select id="company_id" name="company_id" class="form-control" required>
-                        <option value="">-- Select Company --</option>
-                        @foreach($companies as $id => $name)
-                            <option value="{{ $id }}" {{ (old('company_id') == $id || request('company_id') == $id) ? 'selected' : '' }}>{{ $name }}</option>
-                        @endforeach
-                    </select>
-                    @error('company_id')<div class="form-error">{{ $message }}</div>@enderror
+                    @if(request('vendor_id'))
+                        <label class="form-label">Vendor</label>
+                        <input type="hidden" name="vendor_id" value="{{ request('vendor_id') }}">
+                        <input type="text" class="form-control" value="Vendor Contact" disabled>
+                    @else
+                        <label class="form-label" for="company_id">Company <span class="required-star">*</span></label>
+                        <select id="company_id" name="company_id" class="form-control" required>
+                            <option value="">-- Select Company --</option>
+                            @foreach($companies as $id => $name)
+                                <option value="{{ $id }}" {{ (old('company_id') == $id || request('company_id') == $id) ? 'selected' : '' }}>{{ $name }}</option>
+                            @endforeach
+                        </select>
+                        @error('company_id')<div class="form-error">{{ $message }}</div>@enderror
+                    @endif
                 </div>
             </div>
             <div class="form-row">
@@ -62,7 +68,11 @@
         </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary" id="save-contact-btn">Save Contact</button>
-            <a href="{{ request('company_id') ? route('customers.show', request('company_id')) : route('contacts.index') }}" class="btn btn-ghost">Cancel</a>
+            @if(request('vendor_id'))
+                <a href="{{ route('vendors.show', request('vendor_id')) }}" class="btn btn-ghost">Cancel</a>
+            @else
+                <a href="{{ request('company_id') ? route('customers.show', request('company_id')) : route('contacts.index') }}" class="btn btn-ghost">Cancel</a>
+            @endif
         </div>
     </form>
 </div>

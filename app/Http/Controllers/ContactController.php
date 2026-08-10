@@ -40,13 +40,15 @@ class ContactController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'company_id' => 'required|exists:companies,id',
-            'name'       => 'required|string|max:255',
-            'email'      => 'required|email|max:255',
-            'phone'      => 'nullable|string|max:50',
-            'position'   => 'nullable|string|max:255',
-            'department' => 'nullable|string|max:255',
-            'is_primary' => 'boolean',
+            'company_id'    => 'nullable|exists:companies,id',
+            'vendor_id'     => 'nullable|exists:vendors,id',
+            'rep_agency_id' => 'nullable|exists:rep_agencies,id',
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|max:255',
+            'phone'         => 'nullable|string|max:50',
+            'position'      => 'nullable|string|max:255',
+            'department'    => 'nullable|string|max:255',
+            'is_primary'    => 'boolean',
         ]);
 
         $data['is_primary'] = $request->boolean('is_primary');
@@ -71,13 +73,15 @@ class ContactController extends Controller
     public function update(Request $request, Contact $contact)
     {
         $data = $request->validate([
-            'company_id' => 'required|exists:companies,id',
-            'name'       => 'required|string|max:255',
-            'email'      => 'required|email|max:255',
-            'phone'      => 'nullable|string|max:50',
-            'position'   => 'nullable|string|max:255',
-            'department' => 'nullable|string|max:255',
-            'is_primary' => 'boolean',
+            'company_id'    => 'nullable|exists:companies,id',
+            'vendor_id'     => 'nullable|exists:vendors,id',
+            'rep_agency_id' => 'nullable|exists:rep_agencies,id',
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|max:255',
+            'phone'         => 'nullable|string|max:50',
+            'position'      => 'nullable|string|max:255',
+            'department'    => 'nullable|string|max:255',
+            'is_primary'    => 'boolean',
         ]);
 
         $data['is_primary'] = $request->boolean('is_primary');

@@ -57,7 +57,7 @@ class VendorController extends Controller
 
     public function show(Vendor $vendor)
     {
-        $vendor->load(['quoteRequests.quote']);
+        $vendor->load(['quoteRequests.quote', 'contacts']);
         $vendor->loadCount('quoteRequests');
         return view('vendors.show', compact('vendor'));
     }
