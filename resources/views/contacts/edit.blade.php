@@ -16,14 +16,22 @@
         <div class="form-card-body">
             <div class="form-row single">
                 <div class="form-group">
-                    <label class="form-label" for="company_id">Company <span class="required-star">*</span></label>
-                    <select id="company_id" name="company_id" class="form-control" required>
-                        <option value="">-- Select Company --</option>
-                        @foreach($companies as $id => $name)
-                            <option value="{{ $id }}" {{ (old('company_id', $contact->company_id) == $id) ? 'selected' : '' }}>{{ $name }}</option>
-                        @endforeach
-                    </select>
-                    @error('company_id')<div class="form-error">{{ $message }}</div>@enderror
+                    @if($contact->vendor_id)
+                        <label class="form-label">Vendor</label>
+                        <input type="text" class="form-control" value="{{ $contact->vendor->name ?? 'Vendor Contact' }}" disabled>
+                    @elseif($contact->rep_agency_id)
+                        <label class="form-label">Rep Agency</label>
+                        <input type="text" class="form-control" value="Rep Agency Contact" disabled>
+                    @else
+                        <label class="form-label" for="company_id">Company <span class="required-star">*</span></label>
+                        <select id="company_id" name="company_id" class="form-control" required>
+                            <option value="">-- Select Company --</option>
+                            @foreach($companies as $id => $name)
+                                <option value="{{ $id }}" {{ (old('company_id', $contact->company_id) == $id) ? 'selected' : '' }}>{{ $name }}</option>
+                            @endforeach
+                        </select>
+                        @error('company_id')<div class="form-error">{{ $message }}</div>@enderror
+                    @endif
                 </div>
             </div>
             <div class="form-row">
@@ -63,7 +71,11 @@
         </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary" id="save-contact-btn">Save Changes</button>
-            <a href="{{ route('contacts.show', $contact) }}" class="btn btn-ghost">Cancel</a>
+            @if($contact->vendor_id)
+                <a href="{{ route('vendors.show', $contact->vendor_id) }}" class="btn btn-ghost">Cancel</a>
+            @else
+                <a href="{{ route('contacts.show', $contact) }}" class="btn btn-ghost">Cancel</a>
+            @endif
         </div>
     </form>
 </div>

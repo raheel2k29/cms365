@@ -10,7 +10,8 @@ class ContactController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Contact::with('company');
+        // Only show Customer (Company) contacts in the main Contacts tab
+        $query = Contact::with('company')->whereNotNull('company_id');
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -54,6 +55,15 @@ class ContactController extends Controller
         $data['is_primary'] = $request->boolean('is_primary');
         $contact = Contact::create($data);
 
+        if ($contact->vendor_id) {
+            return redirect()->route('vendors.show', $contact->vendor_id)
+                ->with('success', "Vendor Contact '{$contact->name}' created successfully.");
+        }
+        if ($contact->rep_agency_id) {
+            return redirect()->route('rep-agencies.show', $contact->rep_agency_id)
+                ->with('success', "Rep Agency Contact '{$contact->name}' created successfully.");
+        }
+
         return redirect()->route('contacts.show', $contact)
             ->with('success', "Contact '{$contact->name}' created successfully.");
     }
@@ -87,13 +97,29 @@ class ContactController extends Controller
         $data['is_primary'] = $request->boolean('is_primary');
         $contact->update($data);
 
+        if ($contact->vendor_id) {
+            return redirect()->route('vendors.show', $contact->vendor_id)
+                ->with('success', 'Vendor Contact updated successfully.');
+        }
+        if ($contact->rep_agency_id) {
+            return redirect()->route('rep-agencies.show', $contact->rep_agency_id)
+                ->with('success', 'Rep Agency Contact updated successfully.');
+        }
+
         return redirect()->route('contacts.show', $contact)
             ->with('success', 'Contact updated successfully.');
     }
 
     public function destroy(Contact $contact)
     {
+        $vendorId = $contact->vendor_id;
+        $repAgencyId = $contact->rep_agency_id;
         $contact->delete();
+        
+        if ($vendorId) {
+            return redirect()->route('vendors.show', $vendorId)->with('success', 'Contact deleted successfully.');
+        }
+        
         return redirect()->route('contacts.index')->with('success', 'Contact deleted successfully.');
     }
 
