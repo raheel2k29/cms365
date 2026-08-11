@@ -91,7 +91,12 @@ class QuoteController extends Controller
 
         $businessEntity = BusinessEntity::where('code', 'ESC')->first() ?? BusinessEntity::first();
 
-        $quote = new Quote($request->except('email_id'));
+        $fillData = $request->except('email_id');
+        if ($request->filled('due_at')) {
+            $fillData['due_at'] = \Carbon\Carbon::parse($request->due_at)->format('Y-m-d H:i:s');
+        }
+
+        $quote = new Quote($fillData);
         $quote->quote_number = Quote::generateNumber();
         $quote->business_entity_id = $businessEntity->id;
         $quote->assigned_to = auth()->id();
@@ -169,7 +174,14 @@ class QuoteController extends Controller
         DB::transaction(function () use ($request, $quote, $validated) {
             $oldStatus = $quote->status;
             
-            $quote->fill($request->only(['project_name', 'project_address', 'due_at', 'expires_at', 'company_id', 'contact_id', 'quote_type_id']));
+            $fillData = $request->only(['project_name', 'project_address', 'expires_at', 'company_id', 'contact_id', 'quote_type_id']);
+            if ($request->filled('due_at')) {
+                $fillData['due_at'] = \Carbon\Carbon::parse($request->due_at)->format('Y-m-d H:i:s');
+            } else {
+                $fillData['due_at'] = null;
+            }
+            
+            $quote->fill($fillData);
             if ($request->has('status') && $request->status !== $quote->status) {
                 $quote->status = $request->status;
                 $quote->activityLogs()->create([
