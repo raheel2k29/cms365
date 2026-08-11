@@ -82,6 +82,10 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Pipeline
+    Route::get('/pipeline', [\App\Http\Controllers\PipelineController::class, 'index'])->name('pipeline.index');
+    Route::post('/pipeline/quick-update', [\App\Http\Controllers\PipelineController::class, 'quickUpdate'])->name('pipeline.quick-update');
+
     // Quotes
     Route::post('quotes/bulk-delete', [QuoteController::class, 'bulkDelete'])->name('quotes.bulk-delete');
     Route::get('quotes/bulk-delete', fn() => redirect()->route('quotes.index'));

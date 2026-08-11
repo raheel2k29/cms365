@@ -17,12 +17,14 @@ class Quote extends Model
         'source', 'quickbooks_ref', 'requested_at', 'due_at', 'expires_at',
         'quote_sent_at', 'won_lost_at', 'lost_reason',
         'total_cost', 'total_sell', 'gross_margin_amount', 'gross_margin_pct', 'commission_amount',
+        'probability', 'expected_close', 'next_step',
     ];
 
     protected $casts = [
         'requested_at'  => 'date',
         'due_at'        => 'datetime',
         'expires_at'    => 'date',
+        'expected_close'=> 'date',
         'quote_sent_at' => 'date',
         'won_lost_at'   => 'date',
         'total_cost'    => 'decimal:2',
