@@ -239,6 +239,46 @@ class QuoteController extends Controller
         return $pdf->download("Quote_{$quote->quote_number}.pdf");
     }
 
+    public function quickUpdate(Request $request, Quote $quote)
+    {
+        $validated = $request->validate([
+            'status' => 'nullable|string',
+            'due_at' => 'nullable|date'
+        ]);
+
+        $changes = [];
+
+        if ($request->has('status') && $request->status !== $quote->status) {
+            $oldStatus = $quote->status;
+            $quote->status = $request->status;
+            $changes[] = "Status changed from {$oldStatus} to {$quote->status}";
+        }
+
+        if ($request->has('due_at')) {
+            $newDueAt = $request->filled('due_at') ? \Carbon\Carbon::parse($request->due_at)->format('Y-m-d H:i:s') : null;
+            $oldDueAtStr = $quote->due_at ? $quote->due_at->format('Y-m-d H:i:s') : 'None';
+            $newDueAtStr = $newDueAt ? clone \Carbon\Carbon::parse($newDueAt) : 'None';
+            if ($newDueAt !== ($quote->due_at ? $quote->due_at->format('Y-m-d H:i:s') : null)) {
+                $quote->due_at = $newDueAt;
+                $changes[] = "Due date changed to " . ($newDueAt ? \Carbon\Carbon::parse($newDueAt)->format('M d, Y') : 'None');
+            }
+        }
+
+        if (!empty($changes)) {
+            $quote->save();
+            $quote->activityLogs()->create([
+                'user_id' => auth()->id(),
+                'action'  => 'quick_update',
+                'description' => implode(', ', $changes) . ' via Pipeline.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Quote updated successfully.'
+        ]);
+    }
+
     public function sendEmail(Request $request, Quote $quote)
     {
         // 1. Ensure the quote has a contact with an email

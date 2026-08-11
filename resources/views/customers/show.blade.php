@@ -109,24 +109,37 @@
             @endif
         </div>
 
-        {{-- Recent Quotes --}}
+        {{-- Open Pipeline --}}
         <div class="list-card">
             <div class="list-card-header">
-                <div class="list-card-title">Recent Quotes <span class="list-count">({{ $customer->quotes_count }})</span></div>
+                <div class="list-card-title">Open Pipeline <span class="list-count">({{ $openQuotes->count() }})</span></div>
             </div>
-            @if($customer->quotes->isEmpty())
-                <div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">No quotes yet.</div>
+            @if($openQuotes->isEmpty())
+                <div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">No open projects.</div>
             @else
                 <ul style="list-style:none">
-                    @foreach($customer->quotes as $quote)
+                    @foreach($openQuotes as $quote)
                     <li style="padding:14px 20px;border-bottom:1px solid var(--border)">
-                        <div style="display:flex;align-items:center;justify-content:space-between">
-                            <a href="{{ route('quotes.show', $quote) }}" style="color:var(--accent);font-weight:600;text-decoration:none;font-size:13.5px">{{ $quote->quote_number }}</a>
-                            <span class="badge badge-{{ $quote->status }}">{{ ucfirst(str_replace('_',' ',$quote->status)) }}</span>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                            <div>
+                                <a href="{{ route('quotes.show', $quote) }}" style="color:var(--accent);font-weight:600;text-decoration:none;font-size:13.5px">{{ $quote->quote_number }}</a>
+                                <div style="font-size:13px;color:var(--text-primary);margin-top:2px">{{ $quote->project_name ?? 'No project name' }}</div>
+                            </div>
+                            <div style="text-align:right;font-size:13px;font-weight:600;">
+                                ${{ number_format($quote->total_sell, 2) }}
+                            </div>
                         </div>
-                        <div style="font-size:13px;color:var(--text-primary);margin-top:4px">{{ $quote->project_name ?? 'No project name' }}</div>
-                        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">
-                            ${{ number_format($quote->total_sell, 0) }} • {{ $quote->created_at->format('M d, Y') }}
+                        <div style="display:flex;gap:10px;align-items:center;">
+                            <select class="form-control pipeline-update" data-id="{{ $quote->id }}" data-field="status" style="width:140px;font-size:12px;padding:4px 8px;height:auto;">
+                                @php $statuses = ['new', 'in_review', 'rfq_sent', 'pricing_received', 'quote_prepared', 'quote_sent', 'submitted']; @endphp
+                                @foreach($statuses as $st)
+                                    <option value="{{ $st }}" {{ $quote->status == $st ? 'selected' : '' }}>{{ ucwords(str_replace('_', ' ', $st)) }}</option>
+                                @endforeach
+                            </select>
+                            
+                            <input type="date" class="form-control pipeline-update" data-id="{{ $quote->id }}" data-field="due_at" 
+                                   value="{{ $quote->due_at ? $quote->due_at->format('Y-m-d') : '' }}" 
+                                   style="width:130px;font-size:12px;padding:4px 8px;height:auto;">
                         </div>
                     </li>
                     @endforeach
@@ -134,6 +147,69 @@
             @endif
         </div>
 
+        {{-- Closed Projects --}}
+        @if($closedQuotes->isNotEmpty())
+        <div class="list-card">
+            <div class="list-card-header">
+                <div class="list-card-title">Closed Projects <span class="list-count">({{ $closedQuotes->count() }})</span></div>
+            </div>
+            <ul style="list-style:none">
+                @foreach($closedQuotes as $quote)
+                <li style="padding:14px 20px;border-bottom:1px solid var(--border)">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                        <a href="{{ route('quotes.show', $quote) }}" style="color:var(--accent);font-weight:600;text-decoration:none;font-size:13.5px">{{ $quote->quote_number }}</a>
+                        <span class="badge badge-{{ $quote->status }}">{{ ucfirst(str_replace('_',' ',$quote->status)) }}</span>
+                    </div>
+                    <div style="font-size:13px;color:var(--text-primary);margin-top:4px">{{ $quote->project_name ?? 'No project name' }}</div>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:4px">
+                        ${{ number_format($quote->total_sell, 0) }} • {{ $quote->updated_at->format('M d, Y') }}
+                    </div>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.pipeline-update').forEach(el => {
+        el.addEventListener('change', function() {
+            const quoteId = this.dataset.id;
+            const field = this.dataset.field;
+            const value = this.value;
+            
+            // Visual feedback
+            this.style.opacity = '0.5';
+            
+            fetch(`/quotes/${quoteId}/quick-update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    [field]: value
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.style.opacity = '1';
+                if(!data.success) {
+                    alert('Failed to update. Please refresh.');
+                }
+            })
+            .catch(err => {
+                this.style.opacity = '1';
+                alert('An error occurred. Please try again.');
+            });
+        });
+    });
+});
+</script>
+@endpush

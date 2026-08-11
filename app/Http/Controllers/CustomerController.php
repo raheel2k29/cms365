@@ -58,8 +58,22 @@ class CustomerController extends Controller
     public function show(Company $customer)
     {
         $customer->loadCount(['contacts', 'quotes']);
-        $customer->load(['contacts', 'quotes' => fn($q) => $q->latest()->limit(5)]);
-        return view('customers.show', compact('customer'));
+        $customer->load(['contacts']);
+
+        // Load open quotes (Pipeline)
+        $openQuotes = $customer->quotes()
+            ->whereNotIn('status', ['won', 'lost', 'cancelled'])
+            ->orderBy('due_at', 'asc')
+            ->get();
+
+        // Load closed quotes history
+        $closedQuotes = $customer->quotes()
+            ->whereIn('status', ['won', 'lost', 'cancelled'])
+            ->orderBy('updated_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('customers.show', compact('customer', 'openQuotes', 'closedQuotes'));
     }
 
     public function edit(Company $customer)

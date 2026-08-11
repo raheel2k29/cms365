@@ -86,6 +86,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('quotes/bulk-delete', [QuoteController::class, 'bulkDelete'])->name('quotes.bulk-delete');
     Route::get('quotes/bulk-delete', fn() => redirect()->route('quotes.index'));
     Route::get('quotes/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
+    Route::post('quotes/{quote}/quick-update', [QuoteController::class, 'quickUpdate'])->name('quotes.quick-update');
     Route::post('quotes/{quote}/send-email', [QuoteController::class, 'sendEmail'])->name('quotes.send-email');
     Route::post('quotes/{quote}/reply', [QuoteController::class, 'reply'])->name('quotes.reply');
     Route::get('quotes/calendar', [QuoteController::class, 'calendar'])->name('quotes.calendar');
