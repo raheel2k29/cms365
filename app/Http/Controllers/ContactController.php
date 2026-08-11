@@ -32,10 +32,14 @@ class ContactController extends Controller
         return view('contacts.index', compact('contacts', 'companies'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $companies = Company::orderBy('name')->pluck('name', 'id');
-        return view('contacts.create', compact('companies'));
+        $vendor = null;
+        if ($request->has('vendor_id')) {
+            $vendor = \App\Models\Vendor::find($request->vendor_id);
+        }
+        return view('contacts.create', compact('companies', 'vendor'));
     }
 
     public function store(Request $request)

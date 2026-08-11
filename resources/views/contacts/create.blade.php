@@ -1,6 +1,20 @@
 @extends('layouts.app')
-@section('title', 'New Contact')
-@section('page-title', 'New Contact')
+@section('title', isset($vendor) ? 'New Vendor Contact' : 'New Contact')
+@section('page-title', isset($vendor) ? 'New Vendor Contact' : 'New Contact')
+
+@if(isset($vendor))
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Un-highlight Contacts and highlight Vendors
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if(link.innerText.includes('Contacts')) link.classList.remove('active');
+                if(link.innerText.includes('Vendors')) link.classList.add('active');
+            });
+        });
+    </script>
+    @endpush
+@endif
 
 @push('styles')
 @include('partials.module-styles')
@@ -19,7 +33,7 @@
                     @if(request('vendor_id'))
                         <label class="form-label">Vendor</label>
                         <input type="hidden" name="vendor_id" value="{{ request('vendor_id') }}">
-                        <input type="text" class="form-control" value="Vendor Contact" disabled>
+                        <input type="text" class="form-control" value="{{ isset($vendor) ? $vendor->name : 'Vendor Contact' }}" disabled style="background-color: var(--bg-body); color: var(--text-primary); font-weight: 500;">
                     @else
                         <label class="form-label" for="company_id">Company <span class="required-star">*</span></label>
                         <select id="company_id" name="company_id" class="form-control" required>
