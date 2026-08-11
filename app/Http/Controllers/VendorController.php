@@ -46,10 +46,21 @@ class VendorController extends Controller
             'specialty'      => 'nullable|string|max:255',
             'is_active'      => 'boolean',
             'notes'          => 'nullable|string',
+            'contacts'       => 'nullable|array',
+            'contacts.*.name'=> 'required_with:contacts|string|max:255',
+            'contacts.*.email'=> 'required_with:contacts|email|max:255',
+            'contacts.*.position'=> 'nullable|string|max:255',
+            'contacts.*.phone'=> 'nullable|string|max:50',
         ]);
 
         $data['is_active'] = $request->has('is_active');
         $vendor = Vendor::create($data);
+
+        if (!empty($data['contacts'])) {
+            foreach ($data['contacts'] as $contactData) {
+                $vendor->contacts()->create($contactData);
+            }
+        }
 
         return redirect()->route('vendors.show', $vendor)
             ->with('success', "Vendor '{$vendor->name}' created successfully.");
@@ -64,6 +75,7 @@ class VendorController extends Controller
 
     public function edit(Vendor $vendor)
     {
+        $vendor->load('contacts');
         return view('vendors.edit', compact('vendor'));
     }
 
@@ -78,10 +90,35 @@ class VendorController extends Controller
             'specialty'      => 'nullable|string|max:255',
             'is_active'      => 'boolean',
             'notes'          => 'nullable|string',
+            'contacts'       => 'nullable|array',
+            'contacts.*.id'  => 'nullable|exists:contacts,id',
+            'contacts.*.name'=> 'required_with:contacts|string|max:255',
+            'contacts.*.email'=> 'required_with:contacts|email|max:255',
+            'contacts.*.position'=> 'nullable|string|max:255',
+            'contacts.*.phone'=> 'nullable|string|max:50',
         ]);
 
         $data['is_active'] = $request->has('is_active');
         $vendor->update($data);
+
+        $submittedContactIds = collect($request->input('contacts', []))->pluck('id')->filter()->toArray();
+        // Delete contacts that were removed from the form
+        $vendor->contacts()->whereNotIn('id', $submittedContactIds)->delete();
+
+        if (!empty($data['contacts'])) {
+            foreach ($data['contacts'] as $contactData) {
+                if (!empty($contactData['id'])) {
+                    $vendor->contacts()->where('id', $contactData['id'])->update([
+                        'name' => $contactData['name'],
+                        'email' => $contactData['email'],
+                        'position' => $contactData['position'],
+                        'phone' => $contactData['phone'],
+                    ]);
+                } else {
+                    $vendor->contacts()->create($contactData);
+                }
+            }
+        }
 
         return redirect()->route('vendors.show', $vendor)
             ->with('success', 'Vendor updated successfully.');

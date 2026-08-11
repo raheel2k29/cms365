@@ -76,7 +76,6 @@
         <div class="list-card">
             <div class="list-card-header">
                 <div class="list-card-title">Contacts <span class="list-count">({{ $vendor->contacts->count() }})</span></div>
-                <a href="{{ route('contacts.create', ['vendor_id' => $vendor->id]) }}" class="btn btn-primary btn-sm">Add Contact</a>
             </div>
             @if($vendor->contacts->isEmpty())
                 <div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">
@@ -90,7 +89,6 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -102,9 +100,6 @@
                                 </td>
                                 <td><a href="mailto:{{ $contact->email }}" style="color:var(--text-primary);text-decoration:none">{{ $contact->email }}</a></td>
                                 <td>{{ $contact->phone ?? '—' }}</td>
-                                <td>
-                                    <a href="{{ route('contacts.edit', $contact) }}" class="btn btn-ghost btn-sm">Edit</a>
-                                </td>
                             </tr>
                             @endforeach
                         </tbody>
