@@ -88,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('quotes/{quote}/pdf', [QuoteController::class, 'pdf'])->name('quotes.pdf');
     Route::post('quotes/{quote}/send-email', [QuoteController::class, 'sendEmail'])->name('quotes.send-email');
     Route::post('quotes/{quote}/reply', [QuoteController::class, 'reply'])->name('quotes.reply');
+    Route::get('quotes/calendar', [QuoteController::class, 'calendar'])->name('quotes.calendar');
     Route::resource('quotes', QuoteController::class);
     Route::post('quotes/{quote}/notes', [\App\Http\Controllers\NoteController::class, 'store'])->name('quotes.notes.store');
     Route::post('quotes/{quote}/attachments', [\App\Http\Controllers\AttachmentController::class, 'store'])->name('quotes.attachments.store');

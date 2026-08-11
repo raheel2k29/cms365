@@ -21,6 +21,46 @@ class QuoteController extends Controller
         return view('quotes.index', compact('quotes'));
     }
 
+    public function calendar()
+    {
+        // Get all quotes that have a due date and are not closed/lost/cancelled
+        $quotes = Quote::with(['company', 'quoteType'])
+            ->whereNotNull('due_at')
+            ->whereNotIn('status', ['won', 'lost', 'cancelled'])
+            ->get();
+
+        // Format for FullCalendar
+        $events = $quotes->map(function($quote) {
+            // Pick a color based on status
+            $color = '#2563eb'; // default blue
+            switch($quote->status) {
+                case 'draft': $color = '#94a3b8'; break; // gray
+                case 'in_review': $color = '#7c3aed'; break; // purple
+                case 'rfq_sent': 
+                case 'pricing_received': 
+                case 'quote_prepared': $color = '#0891b2'; break; // teal
+                case 'quote_sent': 
+                case 'submitted': $color = '#d97706'; break; // warning
+            }
+
+            return [
+                'id' => $quote->id,
+                'title' => $quote->company ? $quote->company->name : $quote->project_name,
+                'start' => $quote->due_at->format('Y-m-d'), // All day event on due date
+                'url' => route('quotes.show', $quote->id),
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+                'extendedProps' => [
+                    'status' => $quote->status,
+                    'quote_number' => $quote->quote_number,
+                    'amount' => '$' . number_format($quote->total_sell, 2)
+                ]
+            ];
+        });
+
+        return view('quotes.calendar', compact('events'));
+    }
+
     public function create(Request $request)
     {
         $companies = Company::orderBy('name')->get();
