@@ -41,7 +41,15 @@
     <div class="catalog-main">
         <div class="list-card">
             <div class="list-card-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <div class="list-card-title">Catalog Items <span class="list-count">({{ $items->total() }})</span></div>
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div class="list-card-title">Catalog Items <span class="list-count">({{ $items->total() }})</span></div>
+                    @if($items->total() > 0)
+                        <form action="{{ route('catalog.bulk-delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete ALL catalog items in the entire database? This cannot be undone.');">
+                            @csrf
+                            <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger); font-size:12px;">Delete All Database Items</button>
+                        </form>
+                    @endif
+                </div>
                 <form method="GET" action="{{ route('catalog.index') }}" style="display:flex; gap:10px;">
                     <select name="vendor_id" class="form-control" onchange="this.form.submit()" style="width: 200px;">
                         <option value="">All Vendors</option>

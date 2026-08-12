@@ -139,4 +139,16 @@ class CatalogController extends Controller
         $item->delete();
         return back()->with('success', 'Catalog item deleted successfully.');
     }
+
+    public function bulkDelete(Request $request)
+    {
+        if ($request->has('vendor_id') && $request->vendor_id) {
+            $count = VendorItem::where('vendor_id', $request->vendor_id)->delete();
+            return back()->with('success', "Successfully deleted {$count} catalog items for the selected vendor.");
+        }
+        
+        $count = VendorItem::count();
+        VendorItem::truncate();
+        return back()->with('success', "Successfully deleted all {$count} catalog items from the database.");
+    }
 }

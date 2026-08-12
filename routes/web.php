@@ -89,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
     // Catalog & Pricing
     Route::get('/catalog', [\App\Http\Controllers\CatalogController::class, 'index'])->name('catalog.index');
     Route::post('/catalog/import', [\App\Http\Controllers\CatalogController::class, 'import'])->name('catalog.import');
+    Route::post('/catalog/bulk-delete', [\App\Http\Controllers\CatalogController::class, 'bulkDelete'])->name('catalog.bulk-delete');
     Route::get('/api/catalog/search', [\App\Http\Controllers\CatalogController::class, 'search'])->name('catalog.search');
     Route::delete('/catalog/{item}', [\App\Http\Controllers\CatalogController::class, 'destroy'])->name('catalog.destroy');
 

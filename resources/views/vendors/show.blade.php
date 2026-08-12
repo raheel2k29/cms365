@@ -157,7 +157,16 @@
 
 <div class="list-card" style="margin-top: 24px;">
     <div class="list-card-header" style="display:flex; justify-content:space-between; align-items:center;">
-        <div class="list-card-title">Catalog Items <span class="list-count">({{ $vendorItems->total() }})</span></div>
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div class="list-card-title">Catalog Items <span class="list-count">({{ $vendorItems->total() }})</span></div>
+            @if($vendorItems->total() > 0)
+                <form action="{{ route('catalog.bulk-delete') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete ALL catalog items for this vendor? This cannot be undone.');">
+                    @csrf
+                    <input type="hidden" name="vendor_id" value="{{ $vendor->id }}">
+                    <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger);">Delete All Items</button>
+                </form>
+            @endif
+        </div>
         <form method="GET" action="{{ route('vendors.show', $vendor) }}" style="display:flex; gap:10px;">
             <input type="text" name="search" class="form-control" placeholder="Search items..." value="{{ request('search') }}" style="width: 250px; padding:6px 12px; font-size:13px;">
             <button type="submit" class="btn btn-secondary btn-sm">Search</button>
