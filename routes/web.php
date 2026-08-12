@@ -86,6 +86,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pipeline', [\App\Http\Controllers\PipelineController::class, 'index'])->name('pipeline.index');
     Route::post('/pipeline/quick-update', [\App\Http\Controllers\PipelineController::class, 'quickUpdate'])->name('pipeline.quick-update');
 
+    // Catalog & Pricing
+    Route::get('/catalog', [\App\Http\Controllers\CatalogController::class, 'index'])->name('catalog.index');
+    Route::post('/catalog/import', [\App\Http\Controllers\CatalogController::class, 'import'])->name('catalog.import');
+    Route::get('/api/catalog/search', [\App\Http\Controllers\CatalogController::class, 'search'])->name('catalog.search');
+
     // Quotes
     Route::post('quotes/bulk-delete', [QuoteController::class, 'bulkDelete'])->name('quotes.bulk-delete');
     Route::get('quotes/bulk-delete', fn() => redirect()->route('quotes.index'));

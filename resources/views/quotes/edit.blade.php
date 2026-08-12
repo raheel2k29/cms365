@@ -95,9 +95,25 @@
                             </div>
                             
                             <div style="display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
-                                <div>
+                                <div style="position:relative">
                                     <label style="font-size:11px;color:var(--text-muted);font-weight:600">Description</label>
-                                    <input type="text" x-model="item.description" :name="`items[${index}][description]`" class="form-control" placeholder="Item description">
+                                    <input type="text" x-model="item.description" :name="`items[${index}][description]`" class="form-control" placeholder="Item description" 
+                                           @input.debounce.500ms="searchCatalog(item)"
+                                           @click.away="item.showResults = false"
+                                           @focus="item.showResults = item.searchResults.length > 0">
+                                    
+                                    <!-- Autocomplete dropdown -->
+                                    <div x-show="item.showResults" class="autocomplete-dropdown" style="display:none; position:absolute; top:100%; left:0; width:100%; background:#fff; border:1px solid var(--border); box-shadow:var(--shadow-md); z-index:50; border-radius:4px; max-height:200px; overflow-y:auto;">
+                                        <template x-for="result in item.searchResults" :key="result.id">
+                                            <div @click="selectCatalogItem(item, result)" style="padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--border-light); font-size:12.5px;">
+                                                <div style="font-weight:600; color:var(--text-primary)" x-text="result.description"></div>
+                                                <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; margin-top:2px;">
+                                                    <span x-text="(result.item_number ? result.item_number + ' • ' : '') + (result.vendor ? result.vendor.name : '')"></span>
+                                                    <span x-text="'$' + parseFloat(result.sell_price).toFixed(2)"></span>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </div>
                                 <div>
                                     <label style="font-size:11px;color:var(--text-muted);font-weight:600">Spec Sheet Link</label>
@@ -222,7 +238,9 @@ document.addEventListener('alpine:init', () => {
                     quoted_by: item.quoted_by || '',
                     rep: item.rep || '',
                     vendor_id: item.vendor_id || '',
-                    line_note: item.line_note || ''
+                    line_note: item.line_note || '',
+                    searchResults: [],
+                    showResults: false
                 }));
             } else {
                 this.addItem();
@@ -242,12 +260,40 @@ document.addEventListener('alpine:init', () => {
                 quoted_by: '',
                 rep: '',
                 vendor_id: '',
-                line_note: ''
+                line_note: '',
+                searchResults: [],
+                showResults: false
             });
         },
         
         removeItem(id) {
             this.items = this.items.filter(item => item.id !== id);
+        },
+        
+        async searchCatalog(item) {
+            if (item.description.length < 2) {
+                item.searchResults = [];
+                item.showResults = false;
+                return;
+            }
+            try {
+                let res = await fetch(`/api/catalog/search?q=${encodeURIComponent(item.description)}`);
+                let data = await res.json();
+                item.searchResults = data;
+                item.showResults = data.length > 0;
+            } catch(e) {
+                console.error(e);
+            }
+        },
+        
+        selectCatalogItem(item, result) {
+            item.description = result.description;
+            if(result.cost_price) item.cost_price = result.cost_price;
+            if(result.sell_price) item.sell_price = result.sell_price;
+            if(result.unit) item.unit = result.unit;
+            if(result.vendor_id) item.vendor_id = result.vendor_id;
+            
+            item.showResults = false;
         },
         
         get totalCost() {

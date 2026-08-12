@@ -152,6 +152,23 @@
                 </div>
             @endif
         </div>
+        
+        <div class="list-card" style="margin-top: 24px;">
+            <div class="list-card-header">
+                <div class="list-card-title">Import Pricing Catalog</div>
+            </div>
+            <div style="padding: 20px;">
+                <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+                    Upload a CSV to quickly import or update catalog items for this vendor. Format: Item Number, Description, Cost, Sell, Unit (no headers required).
+                </p>
+                <form action="{{ route('catalog.import') }}" method="POST" enctype="multipart/form-data" style="display:flex; gap:16px; align-items:center;">
+                    @csrf
+                    <input type="hidden" name="vendor_id" value="{{ $vendor->id }}">
+                    <input type="file" name="csv_file" accept=".csv" class="form-control" required style="padding: 6px; flex:1;">
+                    <button type="submit" class="btn btn-primary">Import CSV</button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
