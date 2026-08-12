@@ -93,7 +93,7 @@
         <div class="import-card">
             <h3>Import Vendor Pricing</h3>
             <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
-                Upload a CSV to quickly import or update your catalog.
+                Upload a CSV or Excel file to quickly import or update your catalog.
             </p>
             <div class="template-box">
                 <strong>Format (No headers required):</strong><br>
@@ -116,8 +116,8 @@
                     </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 16px;">
-                    <label>CSV File</label>
-                    <input type="file" name="csv_file" accept=".csv" class="form-control" required style="padding: 6px;">
+                    <label>CSV/Excel File</label>
+                    <input type="file" name="csv_file" accept=".csv, .xlsx" class="form-control" required style="padding: 6px;">
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Upload & Import</button>
             </form>

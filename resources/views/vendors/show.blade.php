@@ -195,13 +195,13 @@
             </div>
             <div style="padding: 20px;">
                 <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
-                    Upload a CSV to quickly import or update catalog items for this vendor. Format: Item Number, Description, Cost, Sell, Unit (no headers required).
+                    Upload a CSV or Excel file to quickly import or update catalog items for this vendor. Format: Item Number, Description, Cost, Sell, Unit (no headers required).
                 </p>
                 <form action="{{ route('catalog.import') }}" method="POST" enctype="multipart/form-data" style="display:flex; gap:16px; align-items:center;">
                     @csrf
                     <input type="hidden" name="vendor_id" value="{{ $vendor->id }}">
-                    <input type="file" name="csv_file" accept=".csv" class="form-control" required style="padding: 6px; flex:1;">
-                    <button type="submit" class="btn btn-primary">Import CSV</button>
+                    <input type="file" name="csv_file" accept=".csv, .xlsx" class="form-control" required style="padding: 6px; flex:1;">
+                    <button type="submit" class="btn btn-primary">Import CSV/Excel</button>
                 </form>
             </div>
         </div>
