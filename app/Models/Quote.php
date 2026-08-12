@@ -17,7 +17,7 @@ class Quote extends Model
         'source', 'quickbooks_ref', 'requested_at', 'due_at', 'expires_at',
         'quote_sent_at', 'won_lost_at', 'lost_reason',
         'total_cost', 'total_sell', 'gross_margin_amount', 'gross_margin_pct', 'commission_amount',
-        'probability', 'expected_close', 'next_step',
+        'probability', 'expected_close', 'next_step', 'cc_emails',
     ];
 
     protected $casts = [

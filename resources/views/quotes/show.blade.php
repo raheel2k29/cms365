@@ -371,9 +371,10 @@
             <label style="font-weight:600; display:block; margin-bottom:8px">Subject:</label>
             <input type="text" name="subject" class="form-control" value="{{ $defaultSubject }}" style="width:100%; padding:12px; font-size:14px; border-radius:4px; border:1px solid var(--border);" required>
         </div>
-        <div style="margin-bottom:16px;">
-            <label style="font-weight:600; display:block; margin-bottom:8px">CC (comma-separated, optional):</label>
-            <input type="text" name="cc_emails" class="form-control" placeholder="example1@test.com, example2@test.com" style="width:100%; padding:12px; font-size:14px; border-radius:4px; border:1px solid var(--border);">
+        <div style="margin-bottom:20px;">
+            <label class="form-label" style="display:block; margin-bottom:8px; font-weight:600; font-size:13px; color:var(--text-primary);">CC Emails (Optional)</label>
+            <input type="text" name="cc_emails" class="form-control" placeholder="example1@test.com, example2@test.com" style="width:100%; padding:12px; font-size:14px; border-radius:4px; border:1px solid var(--border);" value="{{ $quote->cc_emails }}">
+            <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">These people will receive a copy of the quote.</div>
         </div>
         <div style="margin-bottom:16px;">
             <label style="font-weight:600; display:block; margin-bottom:8px">Email Message:</label>

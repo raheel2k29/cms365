@@ -87,7 +87,17 @@ class QuoteController extends Controller
             'contact_id'   => 'nullable|exists:contacts,id',
             'quote_type_id'=> 'nullable|exists:quote_types,id',
             'email_id'     => 'nullable|exists:emails,id',
+            'cc_emails'    => 'nullable|string'
         ]);
+
+        $ccEmails = [];
+        if (!empty($validated['cc_emails'])) {
+            preg_match_all('/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/', $validated['cc_emails'], $matches);
+            if (!empty($matches[0])) {
+                $ccEmails = array_unique($matches[0]);
+            }
+        }
+        $validated['cc_emails'] = !empty($ccEmails) ? implode(', ', $ccEmails) : null;
 
         $businessEntity = BusinessEntity::where('code', 'ESC')->first() ?? BusinessEntity::first();
 
@@ -95,6 +105,7 @@ class QuoteController extends Controller
         if ($request->filled('due_at')) {
             $fillData['due_at'] = \Carbon\Carbon::parse($request->due_at)->format('Y-m-d H:i:s');
         }
+        $fillData['cc_emails'] = $validated['cc_emails'];
 
         $quote = new Quote($fillData);
         $quote->quote_number = Quote::generateNumber();

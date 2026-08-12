@@ -63,6 +63,13 @@
         </div>
 
         <div style="margin-bottom:24px">
+            <label class="form-label" style="display:block;margin-bottom:8px;font-weight:600;font-size:13px">CC Emails (Optional)</label>
+            <input type="text" name="cc_emails" class="form-control" placeholder="example1@test.com, example2@test.com" style="width:100%;padding:10px 14px;font-size:14px" value="{{ old('cc_emails') }}">
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Enter multiple email addresses separated by commas to automatically copy them when sending this quote.</div>
+            @error('cc_emails')<div style="color:#dc2626;font-size:12px;margin-top:4px">{{ $message }}</div>@enderror
+        </div>
+
+        <div style="margin-bottom:24px">
             <label class="form-label" style="display:block;margin-bottom:8px;font-weight:600;font-size:13px">Quote Type</label>
             <select name="quote_type_id" class="form-control" style="width:100%;padding:10px 14px;font-size:14px">
                 <option value="">-- Select Type --</option>
