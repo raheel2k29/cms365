@@ -34,7 +34,7 @@ class CatalogController extends Controller
     {
         $request->validate([
             'vendor_id' => 'required|exists:vendors,id',
-            'csv_file' => 'required|file|mimes:csv,txt|max:5120' // 5MB max
+            'csv_file' => 'required|file|max:5120' // 5MB max
         ]);
 
         $file = $request->file('csv_file');

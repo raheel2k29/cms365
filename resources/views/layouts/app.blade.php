@@ -384,6 +384,15 @@
     <main class="page-content">
         @if(session('success'))<div class="flash flash-success">{{ session('success') }}</div>@endif
         @if(session('error'))<div class="flash flash-error">{{ session('error') }}</div>@endif
+        @if($errors->any())
+            <div class="flash flash-error" style="background:#fef2f2; border:1px solid #f87171; color:#991b1b; padding:12px; border-radius:6px; margin-bottom:20px;">
+                <ul style="margin:0; padding-left:20px;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         @yield('content')
     </main>
 </div>
