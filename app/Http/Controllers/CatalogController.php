@@ -133,4 +133,10 @@ class CatalogController extends Controller
 
         return response()->json($items);
     }
+
+    public function destroy(VendorItem $item)
+    {
+        $item->delete();
+        return back()->with('success', 'Catalog item deleted successfully.');
+    }
 }

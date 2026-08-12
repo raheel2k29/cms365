@@ -90,6 +90,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/catalog', [\App\Http\Controllers\CatalogController::class, 'index'])->name('catalog.index');
     Route::post('/catalog/import', [\App\Http\Controllers\CatalogController::class, 'import'])->name('catalog.import');
     Route::get('/api/catalog/search', [\App\Http\Controllers\CatalogController::class, 'search'])->name('catalog.search');
+    Route::delete('/catalog/{item}', [\App\Http\Controllers\CatalogController::class, 'destroy'])->name('catalog.destroy');
 
     // Quotes
     Route::post('quotes/bulk-delete', [QuoteController::class, 'bulkDelete'])->name('quotes.bulk-delete');

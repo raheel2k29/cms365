@@ -66,12 +66,22 @@ class VendorController extends Controller
             ->with('success', "Vendor '{$vendor->name}' created successfully.");
     }
 
-    public function show(Vendor $vendor)
+    public function show(Request $request, Vendor $vendor)
     {
         $vendor->load(['quoteRequests.quote', 'contacts']);
         $vendor->loadCount('quoteRequests');
         
-        $vendorItems = $vendor->items()->paginate(20);
+        $query = $vendor->items();
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('item_number', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+        
+        $vendorItems = $query->paginate(20)->withQueryString();
         
         return view('vendors.show', compact('vendor', 'vendorItems'));
     }

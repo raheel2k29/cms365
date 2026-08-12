@@ -63,6 +63,7 @@
                         <th style="padding:12px 20px; border-bottom:1px solid var(--border);">Cost</th>
                         <th style="padding:12px 20px; border-bottom:1px solid var(--border);">Sell</th>
                         <th style="padding:12px 20px; border-bottom:1px solid var(--border);">Unit</th>
+                        <th style="padding:12px 20px; border-bottom:1px solid var(--border); width:50px;"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -74,10 +75,19 @@
                             <td style="padding:12px 20px; border-bottom:1px solid var(--border-light);">${{ number_format($item->cost_price, 2) }}</td>
                             <td style="padding:12px 20px; border-bottom:1px solid var(--border-light);">${{ number_format($item->sell_price, 2) }}</td>
                             <td style="padding:12px 20px; border-bottom:1px solid var(--border-light);">{{ $item->unit ?: '—' }}</td>
+                            <td style="padding:12px 20px; border-bottom:1px solid var(--border-light); text-align:right;">
+                                <form action="{{ route('catalog.destroy', $item) }}" method="POST" onsubmit="return confirm('Delete this catalog item?');" style="display:inline-block;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--danger);padding:4px;" title="Delete">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" style="padding:24px; text-align:center; color:var(--text-muted);">No items found.</td>
+                            <td colspan="7" style="padding:24px; text-align:center; color:var(--text-muted);">No items found.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -156,8 +156,15 @@
 </div>
 
 <div class="list-card" style="margin-top: 24px;">
-    <div class="list-card-header">
+    <div class="list-card-header" style="display:flex; justify-content:space-between; align-items:center;">
         <div class="list-card-title">Catalog Items <span class="list-count">({{ $vendorItems->total() }})</span></div>
+        <form method="GET" action="{{ route('vendors.show', $vendor) }}" style="display:flex; gap:10px;">
+            <input type="text" name="search" class="form-control" placeholder="Search items..." value="{{ request('search') }}" style="width: 250px; padding:6px 12px; font-size:13px;">
+            <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+            @if(request('search'))
+                <a href="{{ route('vendors.show', $vendor) }}" class="btn btn-ghost btn-sm">Clear</a>
+            @endif
+        </form>
     </div>
     
     @if($vendorItems->isEmpty())
@@ -171,6 +178,7 @@
                     <th style="padding:12px 20px;">Cost</th>
                     <th style="padding:12px 20px;">Sell</th>
                     <th style="padding:12px 20px;">Unit</th>
+                    <th style="padding:12px 20px; width:50px;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -181,6 +189,15 @@
                     <td style="padding:12px 20px;">${{ number_format($item->cost_price, 2) }}</td>
                     <td style="padding:12px 20px;">${{ number_format($item->sell_price, 2) }}</td>
                     <td style="padding:12px 20px;">{{ $item->unit ?: '—' }}</td>
+                    <td style="padding:12px 20px; text-align:right;">
+                        <form action="{{ route('catalog.destroy', $item) }}" method="POST" onsubmit="return confirm('Delete this catalog item?');" style="display:inline-block;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--danger);padding:4px;" title="Delete">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
