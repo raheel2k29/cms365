@@ -32,4 +32,9 @@ class Vendor extends Model
     {
         return $this->hasMany(QuoteVendorRequest::class);
     }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(VendorItem::class);
+    }
 }

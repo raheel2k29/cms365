@@ -155,6 +155,42 @@
         
         <div class="list-card" style="margin-top: 24px;">
             <div class="list-card-header">
+                <div class="list-card-title">Catalog Items <span class="list-count">({{ $vendorItems->total() }})</span></div>
+            </div>
+            
+            @if($vendorItems->isEmpty())
+                <div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px">No items in catalog.</div>
+            @else
+                <table class="table" style="margin-bottom:0;">
+                    <thead>
+                        <tr>
+                            <th style="padding:12px 20px;">SKU</th>
+                            <th style="padding:12px 20px;">Description</th>
+                            <th style="padding:12px 20px;">Cost</th>
+                            <th style="padding:12px 20px;">Sell</th>
+                            <th style="padding:12px 20px;">Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($vendorItems as $item)
+                        <tr>
+                            <td style="padding:12px 20px;">{{ $item->item_number ?: '—' }}</td>
+                            <td style="padding:12px 20px;">{{ $item->description }}</td>
+                            <td style="padding:12px 20px;">${{ number_format($item->cost_price, 2) }}</td>
+                            <td style="padding:12px 20px;">${{ number_format($item->sell_price, 2) }}</td>
+                            <td style="padding:12px 20px;">{{ $item->unit ?: '—' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <div style="padding: 12px 20px;">
+                    {{ $vendorItems->links() }}
+                </div>
+            @endif
+        </div>
+        
+        <div class="list-card" style="margin-top: 24px;">
+            <div class="list-card-header">
                 <div class="list-card-title">Import Pricing Catalog</div>
             </div>
             <div style="padding: 20px;">

@@ -70,7 +70,10 @@ class VendorController extends Controller
     {
         $vendor->load(['quoteRequests.quote', 'contacts']);
         $vendor->loadCount('quoteRequests');
-        return view('vendors.show', compact('vendor'));
+        
+        $vendorItems = $vendor->items()->paginate(20);
+        
+        return view('vendors.show', compact('vendor', 'vendorItems'));
     }
 
     public function edit(Vendor $vendor)
