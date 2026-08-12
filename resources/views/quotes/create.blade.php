@@ -41,7 +41,7 @@
 
         <div style="margin-bottom:20px">
             <label class="form-label" style="display:block;margin-bottom:8px;font-weight:600;font-size:13px">Customer / Company</label>
-            <select name="company_id" class="form-control" style="width:100%;padding:10px 14px;font-size:14px">
+            <select name="company_id" id="company_select" class="form-control" style="width:100%;padding:10px 14px;font-size:14px">
                 <option value="">-- Select Customer --</option>
                 @foreach($companies as $company)
                     <option value="{{ $company->id }}">{{ $company->name }}</option>
@@ -52,13 +52,13 @@
 
         <div style="margin-bottom:20px">
             <label class="form-label" style="display:block;margin-bottom:8px;font-weight:600;font-size:13px">Primary Contact</label>
-            <select name="contact_id" class="form-control" style="width:100%;padding:10px 14px;font-size:14px">
+            <select name="contact_id" id="contact_select" class="form-control" style="width:100%;padding:10px 14px;font-size:14px">
                 <option value="">-- Select Contact --</option>
                 @foreach($contacts as $contact)
-                    <option value="{{ $contact->id }}">{{ $contact->name }} ({{ $contact->company->name ?? 'No Company' }})</option>
+                    <option value="{{ $contact->id }}" data-company-id="{{ $contact->company_id }}">{{ $contact->name }} ({{ $contact->company->name ?? 'No Company' }})</option>
                 @endforeach
             </select>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Tip: You can select a contact directly, or leave it blank if unknown.</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Tip: Select a customer first to see their specific contacts.</div>
             @error('contact_id')<div style="color:#dc2626;font-size:12px;margin-top:4px">{{ $message }}</div>@enderror
         </div>
 
@@ -84,4 +84,65 @@
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const companySelect = document.getElementById('company_select');
+    const contactSelect = document.getElementById('contact_select');
+    
+    // Store original options
+    const allOptions = Array.from(contactSelect.options).map(opt => ({
+        value: opt.value,
+        text: opt.text,
+        companyId: opt.getAttribute('data-company-id')
+    }));
+
+    function filterContacts() {
+        const selectedCompanyId = companySelect.value;
+        const currentContactValue = contactSelect.value;
+        
+        // Clear current options
+        contactSelect.innerHTML = '';
+        
+        // Add default option
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.text = '-- Select Contact --';
+        contactSelect.appendChild(defaultOpt);
+        
+        // Filter and add matching options
+        let hasValidSelection = false;
+        
+        allOptions.forEach(opt => {
+            if (!opt.value) return; // skip original default
+            
+            // Show if it matches company, or if no company is selected show all, or if contact has no company
+            if (!selectedCompanyId || opt.companyId === selectedCompanyId || !opt.companyId) {
+                const newOpt = document.createElement('option');
+                newOpt.value = opt.value;
+                newOpt.text = opt.text;
+                newOpt.setAttribute('data-company-id', opt.companyId);
+                
+                if (opt.value === currentContactValue) {
+                    newOpt.selected = true;
+                    hasValidSelection = true;
+                }
+                
+                contactSelect.appendChild(newOpt);
+            }
+        });
+        
+        // If current selection is no longer valid, reset
+        if (currentContactValue && !hasValidSelection) {
+            contactSelect.value = '';
+        }
+    }
+
+    companySelect.addEventListener('change', filterContacts);
+    // Initial filter in case company is already selected
+    filterContacts();
+});
+</script>
+@endpush
 @endsection
