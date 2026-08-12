@@ -117,8 +117,8 @@ document.addEventListener('DOMContentLoaded', function() {
         allOptions.forEach(opt => {
             if (!opt.value) return; // skip original default
             
-            // Show if it matches company, or if no company is selected show all, or if contact has no company
-            if (!selectedCompanyId || opt.companyId === selectedCompanyId || !opt.companyId) {
+            // Show if it matches company, or if no company is selected show all
+            if (!selectedCompanyId || opt.companyId === selectedCompanyId) {
                 const newOpt = document.createElement('option');
                 newOpt.value = opt.value;
                 newOpt.text = opt.text;
