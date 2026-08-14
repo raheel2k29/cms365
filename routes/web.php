@@ -138,10 +138,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
         
-        // Quote Types
-        Route::post('/settings/quote-types/reorder', [\App\Http\Controllers\Settings\QuoteTypeController::class, 'reorder'])->name('settings.quote-types.reorder');
-        Route::resource('quote-types', \App\Http\Controllers\Settings\QuoteTypeController::class)->except(['create', 'show', 'edit'])->names('settings.quote-types');
-
         // Quote Statuses
         Route::post('/settings/quote-statuses/reorder', [\App\Http\Controllers\Settings\QuoteStatusController::class, 'reorder'])->name('settings.quote-statuses.reorder');
         Route::resource('quote-statuses', \App\Http\Controllers\Settings\QuoteStatusController::class)->except(['create', 'show', 'edit'])->names('settings.quote-statuses');

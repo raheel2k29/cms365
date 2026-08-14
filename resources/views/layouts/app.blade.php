@@ -330,7 +330,6 @@
             <div class="nav-section-title">Settings</div>
             <ul class="nav-section-list">
                 <li><a href="{{ route('settings.index') }}" class="{{ request()->routeIs('settings.index') ? 'active' : '' }}">General</a></li>
-                <li><a href="{{ route('settings.quote-types.index') }}" class="{{ request()->routeIs('settings.quote-types.*') ? 'active' : '' }}">Quote Types</a></li>
                 <li><a href="{{ route('settings.quote-statuses.index') }}" class="{{ request()->routeIs('settings.quote-statuses.*') ? 'active' : '' }}">Quote Statuses</a></li>
             </ul>
         </div>
