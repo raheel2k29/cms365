@@ -144,6 +144,55 @@
         .user-name { font-size: 13px; font-weight: 600; color: #fff; }
         .user-role { font-size: 11px; color: rgba(255,255,255,0.55); }
 
+        .nav-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-section-title {
+            padding: 0 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+        }
+        .nav-section-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-section-list li a {
+            display: flex;
+            align-items: center;
+            padding: 8px 20px 8px 46px; /* indented like submenus */
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+            font-size: 13.5px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .nav-section-list li a:hover {
+            color: #fff;
+            background: var(--bg-sidebar-hover);
+        }
+        .nav-section-list li a.active {
+            color: #fff;
+            background: var(--bg-sidebar-active);
+        }
+        .nav-section-list li a.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+        }
+
         /* ── Topbar ───────────────────────────────── */
         .main-wrapper { margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
         .topbar {
