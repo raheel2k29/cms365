@@ -8,6 +8,11 @@ class SettingsController extends Controller
 {
     public function index()
     {
-        return view('settings.index');
+        return 'Settings page is working - Hotfix deployed!';
+    }
+
+    public function update(Request $request)
+    {
+        return redirect()->back();
     }
 }
