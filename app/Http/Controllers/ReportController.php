@@ -37,7 +37,7 @@ class ReportController extends Controller
         return view('reports.index', compact(
             'startDate', 'endDate', 
             'totalQuotes', 'wonQuotes', 'lostQuotes', 
-            'conversionRate', 'totalValueWon', 'totalValueLost', 'pipelineValue'
+            'winRate', 'totalValueWon', 'totalValueLost', 'pipelineValue'
         ));
     }
 
