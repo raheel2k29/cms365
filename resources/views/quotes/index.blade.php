@@ -65,8 +65,14 @@
                     <td style="padding:12px">{{ $quote->requested_at ? $quote->requested_at->format('d-M') : '—' }}</td>
                     <td style="padding:12px">{{ $quote->due_at ? $quote->due_at->format('d-M') : '—' }}</td>
                     <td style="padding:12px">{{ $quote->assignedUser->name ?? '—' }}</td>
-                    <td style="padding:12px">
-                        <span class="badge badge-{{ str_replace('_', '-', $quote->status) }}" style="background:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:10px;font-weight:600">{{ strtoupper(str_replace('_', ' ', $quote->status)) }}</span>
+                    <td style="padding:10px 12px">
+                        @if($quote->quoteStatus)
+                            <span class="badge" style="background-color:{{ $quote->quoteStatus->color }}; color:#000; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600">
+                                {{ strtoupper($quote->quoteStatus->name) }}
+                            </span>
+                        @else
+                            <span class="badge" style="background:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:10px;font-weight:600">NO STATUS</span>
+                        @endif
                     </td>
                     <td style="padding:12px;text-align:right">${{ number_format($quote->total_sell, 2) }}</td>
                     <td style="padding:12px;text-align:right">${{ number_format($quote->total_cost, 2) }}</td>

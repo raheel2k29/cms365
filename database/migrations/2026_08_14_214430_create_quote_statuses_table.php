@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('quote_statuses', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('business_entity_id')->constrained('business_entities')->cascadeOnDelete();
+            $table->string('name');
+            $table->string('color')->default('#cbd5e1'); // Default color (gray)
+            $table->integer('order_index')->default(0);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('quote_statuses');
+    }
+};

@@ -141,8 +141,20 @@ class QuoteController extends Controller
 
     public function show(Quote $quote)
     {
-        $quote->load(['company', 'contact', 'assignedUser', 'items', 'attachments', 'emails.attachments', 'notes.user', 'activityLogs.user']);
-        return view('quotes.show', compact('quote'));
+        $quote->load(['company', 'contact', 'items.vendor', 'emails.attachments', 'quoteStatus']);
+        
+        $vendors = \App\Models\Vendor::where('business_entity_id', auth()->user()->business_entity_id)
+            ->where('active', true)
+            ->orderBy('name')
+            ->get();
+
+        $quoteStatuses = \App\Models\QuoteStatus::where('business_entity_id', auth()->user()->business_entity_id)
+            ->orderBy('order_index')
+            ->get();
+            
+        $flow = ['new', 'in_review', 'quote_prepared', 'quote_sent', 'won'];
+        
+        return view('quotes.show', compact('quote', 'vendors', 'flow', 'quoteStatuses'));
     }
 
     public function edit(Quote $quote)
@@ -253,13 +265,23 @@ class QuoteController extends Controller
     public function quickUpdate(Request $request, Quote $quote)
     {
         $validated = $request->validate([
-            'status' => 'nullable|string',
+            'quote_status_id' => 'nullable|exists:quote_statuses,id',
+            'status' => 'nullable|string', // fallback for backwards compatibility if needed during deploy
             'due_at' => 'nullable|date'
         ]);
 
         $changes = [];
 
-        if ($request->has('status') && $request->status !== $quote->status) {
+        if ($request->has('quote_status_id') && $request->quote_status_id != $quote->quote_status_id) {
+            $oldStatus = $quote->quoteStatus ? $quote->quoteStatus->name : 'None';
+            $quote->quote_status_id = $request->quote_status_id;
+            
+            // Re-load the new status to log its name
+            $newStatusObj = \App\Models\QuoteStatus::find($request->quote_status_id);
+            $newStatus = $newStatusObj ? $newStatusObj->name : 'None';
+            
+            $changes[] = "Status changed from {$oldStatus} to {$newStatus}";
+        } elseif ($request->has('status') && $request->status !== $quote->status) {
             $oldStatus = $quote->status;
             $quote->status = $request->status;
             $changes[] = "Status changed from {$oldStatus} to {$quote->status}";

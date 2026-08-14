@@ -11,23 +11,31 @@ class PipelineController extends Controller
 {
     public function index(Request $request)
     {
-        $statuses = [
-            'new' => 'New',
-            'in_review' => 'In Review',
-            'rfq_sent' => 'RFQ Sent',
-            'pricing_received' => 'Pricing Received',
-            'quote_prepared' => 'Quote Prepared',
-            'quote_sent' => 'Quote Sent',
-            'submitted' => 'Submitted'
-        ];
+        $quoteStatuses = \App\Models\QuoteStatus::where('business_entity_id', auth()->user()->business_entity_id)->orderBy('order_index')->get();
+        
+        $statuses = [];
+        $wonStatusId = null;
+        $closedStatuses = ['Won', 'Lost', 'Cancelled', 'No BID', 'Missed'];
+        
+        foreach ($quoteStatuses as $qs) {
+            $statuses[$qs->id] = $qs->name;
+            if (strtolower($qs->name) === 'won') {
+                $wonStatusId = $qs->id;
+            }
+        }
+        
+        $openStatusIds = $quoteStatuses->filter(function($s) use ($closedStatuses) {
+            return !in_array($s->name, $closedStatuses);
+        })->pluck('id')->toArray();
 
         // Base query for open quotes
-        $query = Quote::with(['company'])
-            ->whereIn('status', array_keys($statuses));
+        $query = Quote::with(['company', 'quoteStatus'])
+            ->where('business_entity_id', auth()->user()->business_entity_id)
+            ->whereIn('quote_status_id', $openStatusIds);
             
         // Handle filter
         if ($request->filled('stage') && $request->stage !== 'all') {
-            $query->where('status', $request->stage);
+            $query->where('quote_status_id', $request->stage);
         }
         
         if ($request->filled('search')) {
@@ -51,7 +59,12 @@ class PipelineController extends Controller
         });
         
         // Awarded (Won)
-        $awardedValue = Quote::where('status', 'won')->sum('total_sell'); // all time for now
+        $awardedValue = 0;
+        if ($wonStatusId) {
+            $awardedValue = Quote::where('business_entity_id', auth()->user()->business_entity_id)
+                                 ->where('quote_status_id', $wonStatusId)
+                                 ->sum('total_sell'); // all time for now
+        }
         
         $customersCount = $openQuotes->pluck('company_id')->filter()->unique()->count();
 

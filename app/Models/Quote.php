@@ -13,7 +13,7 @@ class Quote extends Model
 
     protected $fillable = [
         'quote_number', 'business_entity_id', 'quote_type_id', 'contact_id',
-        'company_id', 'assigned_to', 'project_name', 'project_address', 'status', 'currency',
+        'company_id', 'quote_status_id', 'assigned_to', 'project_name', 'project_address', 'status', 'currency',
         'source', 'quickbooks_ref', 'requested_at', 'due_at', 'expires_at',
         'quote_sent_at', 'won_lost_at', 'lost_reason',
         'total_cost', 'total_sell', 'gross_margin_amount', 'gross_margin_pct', 'commission_amount',
@@ -45,6 +45,7 @@ class Quote extends Model
     public function businessEntity(): BelongsTo { return $this->belongsTo(BusinessEntity::class); }
     public function quoteType(): BelongsTo      { return $this->belongsTo(QuoteType::class); }
     public function company(): BelongsTo        { return $this->belongsTo(Company::class); }
+    public function quoteStatus(): BelongsTo    { return $this->belongsTo(QuoteStatus::class); }
     public function contact(): BelongsTo        { return $this->belongsTo(Contact::class); }
     public function assignedUser(): BelongsTo   { return $this->belongsTo(User::class, 'assigned_to'); }
     public function items(): HasMany            { return $this->hasMany(QuoteItem::class)->orderBy('sort_order'); }

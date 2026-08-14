@@ -230,9 +230,9 @@
                         <div style="color:var(--text-muted); font-size:11.5px; margin-top:2px;">{{ $quote->quote_number }}</div>
                     </td>
                     <td>
-                        <select class="inline-input update-field" data-id="{{ $quote->id }}" data-field="status">
+                        <select class="inline-input update-field" data-id="{{ $quote->id }}" data-field="quote_status_id" style="background-color:{{ $quote->quoteStatus ? $quote->quoteStatus->color : '#fff' }}">
                             @foreach($statuses as $st => $label)
-                                <option value="{{ $st }}" {{ $quote->status == $st ? 'selected' : '' }}>{{ $label }}</option>
+                                <option value="{{ $st }}" {{ $quote->quote_status_id == $st ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </td>

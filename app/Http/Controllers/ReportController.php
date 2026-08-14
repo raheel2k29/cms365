@@ -15,18 +15,24 @@ class ReportController extends Controller
 
         $query = Quote::whereBetween('created_at', [$startDate, $endDate]);
 
-        $totalQuotes = (clone $query)->count();
-        $wonQuotes = (clone $query)->where('status', 'won')->count();
-        $lostQuotes = (clone $query)->where('status', 'lost')->count();
+        $businessEntityId = $request->user()->business_entity_id;
+        $quoteStatuses = \App\Models\QuoteStatus::where('business_entity_id', $businessEntityId)->get();
+        $wonId = $quoteStatuses->firstWhere('name', 'Won')?->id ?? -1;
+        $lostId = $quoteStatuses->firstWhere('name', 'Lost')?->id ?? -1;
         
-        $resolvedQuotes = $wonQuotes + $lostQuotes;
-        $conversionRate = $resolvedQuotes > 0 ? ($wonQuotes / $resolvedQuotes) * 100 : 0;
+        $closedNames = ['Won', 'Lost', 'Cancelled', 'No BID', 'Missed'];
+        $openStatusIds = $quoteStatuses->filter(fn($s) => !in_array($s->name, $closedNames))->pluck('id')->toArray();
 
-        $totalValueWon = (clone $query)->where('status', 'won')->sum('total_sell');
-        $totalValueLost = (clone $query)->where('status', 'lost')->sum('total_sell');
+        $totalQuotes = (clone $query)->count();
+        $wonQuotes = (clone $query)->where('quote_status_id', $wonId)->count();
+        $lostQuotes = (clone $query)->where('quote_status_id', $lostId)->count();
         
-        $openStatuses = ['new', 'pricing_received', 'in_review', 'quote_sent'];
-        $pipelineValue = (clone $query)->whereIn('status', $openStatuses)->sum('total_sell');
+        $winRate = $totalQuotes > 0 ? round(($wonQuotes / $totalQuotes) * 100, 1) : 0;
+        
+        $totalValueWon = (clone $query)->where('quote_status_id', $wonId)->sum('total_sell');
+        $totalValueLost = (clone $query)->where('quote_status_id', $lostId)->sum('total_sell');
+        
+        $pipelineValue = (clone $query)->whereIn('quote_status_id', $openStatusIds)->sum('total_sell');
 
         return view('reports.index', compact(
             'startDate', 'endDate', 
@@ -75,7 +81,7 @@ class ReportController extends Controller
                     $quote->quote_number,
                     $quote->project_name,
                     $quote->businessEntity->code ?? '—',
-                    $quote->status,
+                    $quote->quoteStatus ? $quote->quoteStatus->name : 'No Status',
                     $quote->assignedUser->name ?? '—',
                     $quote->created_at->format('Y-m-d'),
                     $quote->due_at ? $quote->due_at->format('Y-m-d') : '—',

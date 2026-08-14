@@ -49,38 +49,47 @@
 @endpush
 
 @section('content')
-<div class="status-bar">
-    @php
-        $flow = ['new', 'in_review', 'quote_sent', 'won'];
-        $currentIdx = array_search($quote->status, $flow);
-    @endphp
-    @foreach($flow as $idx => $st)
-        <div class="status-step {{ $idx <= $currentIdx ? 'active' : '' }}">
-            {{ ucwords(str_replace('_', ' ', $st)) }}
-        </div>
-    @endforeach
-</div>
-
 <div class="record-grid">
     <div>
         <div class="card">
             <div class="card-header">Quote Details</div>
             <div class="card-body">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;font-size:13px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;font-size:13px;align-items:start;">
+                    <div x-data="{ open: false }">
+                        <div style="color:var(--text-muted);margin-bottom:4px">Quote Status</div>
+                        <div class="relative">
+                            <button @click="open = !open" type="button" style="width:100%; text-align:left; padding:8px 12px; border-radius:6px; border:1px solid var(--border); font-weight:600; cursor:pointer; background-color:{{ $quote->quoteStatus ? $quote->quoteStatus->color : '#cbd5e1' }}; color:#000;">
+                                {{ $quote->quoteStatus ? $quote->quoteStatus->name : 'No Status' }}
+                            </button>
+                            
+                            <div x-show="open" @click.away="open = false" style="display:none; position:absolute; top:100%; left:0; width:100%; background:#fff; border:1px solid var(--border); border-radius:6px; box-shadow:var(--shadow-md); z-index:100; margin-top:4px; max-height:300px; overflow-y:auto;">
+                                @foreach($quoteStatuses as $status)
+                                    <div @click="updateStatus({{ $status->id }}); open = false" style="padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--border-light); display:flex; align-items:center;">
+                                        <span style="background-color:{{ $status->color }}; color:#000; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600; width:100%; text-align:center;">
+                                            {{ $status->name }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                                <div style="padding:10px; text-align:center; background:#f8fafc;">
+                                    <a href="{{ route('settings.quote-statuses.index') }}" style="color:var(--text-muted); text-decoration:none; font-size:12px; display:flex; align-items:center; justify-content:center; gap:4px;">
+                                        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg> Edit Labels
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div>
                         <div style="color:var(--text-muted);margin-bottom:4px">Project Name</div>
                         <div style="font-weight:600;color:var(--text-primary)">{{ $quote->project_name ?? '—' }}</div>
-                    </div>
-                    <div>
-                        <div style="color:var(--text-muted);margin-bottom:4px">Customer</div>
+                        
+                        <div style="color:var(--text-muted);margin-top:16px;margin-bottom:4px">Customer</div>
                         <div style="font-weight:600;color:var(--text-primary)">{{ $quote->company->name ?? '—' }}</div>
                     </div>
                     <div>
                         <div style="color:var(--text-muted);margin-bottom:4px">Contact</div>
                         <div style="font-weight:600;color:var(--text-primary)">{{ $quote->contact->name ?? '—' }}</div>
-                    </div>
-                    <div>
-                        <div style="color:var(--text-muted);margin-bottom:4px">Assigned To</div>
+                        
+                        <div style="color:var(--text-muted);margin-top:16px;margin-bottom:4px">Assigned To</div>
                         <div style="font-weight:600;color:var(--text-primary)">{{ $quote->assignedUser->name ?? '—' }}</div>
                     </div>
                 </div>
@@ -307,17 +316,38 @@
             </div>
         </div>
 
-        <script>
-            function switchTab(tabId) {
-                // Remove active class from all tabs and contents
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab and corresponding content
-                event.currentTarget.classList.add('active');
-                document.getElementById('tab-' + tabId).classList.add('active');
+        @push('scripts')
+<script>
+    function updateStatus(statusId) {
+        fetch(`{{ route('quotes.quick-update', $quote) }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ quote_status_id: statusId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Failed to update status');
             }
-            
+        });
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        document.getElementById('tab-' + tabId).classList.add('active');
+    }
+</script>
+@endpush
+        
+        <script>
             function syncEmailsQuote(btn) {
                 btn.innerHTML = 'Syncing...';
                 btn.disabled = true;

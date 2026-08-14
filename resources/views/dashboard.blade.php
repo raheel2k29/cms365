@@ -241,7 +241,15 @@
                         <td class="td-bold">{{ $quote->project_name ?? '—' }}</td>
                         <td>{{ $quote->requested_at?->format('d-M-Y') ?? '—' }}</td>
                         <td>{{ $quote->due_at?->format('d-M-Y') ?? '—' }}</td>
-                        <td><span class="badge badge-{{ $quote->status }}">{{ ucfirst(str_replace('_',' ',$quote->status)) }}</span></td>
+                        <td>
+                            @if($quote->quoteStatus)
+                                <span class="badge" style="background-color:{{ $quote->quoteStatus->color }}; color:#000; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:600">
+                                    {{ strtoupper($quote->quoteStatus->name) }}
+                                </span>
+                            @else
+                                <span class="badge" style="background:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:10px;font-weight:600">NO STATUS</span>
+                            @endif
+                        </td>
                         <td>{{ $quote->assignedUser->name ?? '—' }}</td>
                         <td>
                             @if($quote->emails->count())
