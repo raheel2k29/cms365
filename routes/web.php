@@ -77,6 +77,16 @@ Route::get('/api/migrate', function () {
     }
 });
 
+Route::get('/api/logs', function () {
+    $logPath = storage_path('logs/laravel.log');
+    if (!file_exists($logPath)) {
+        return 'No log file found.';
+    }
+    // Get last 5000 chars
+    $content = file_get_contents($logPath);
+    return '<pre>' . htmlspecialchars(substr($content, -5000)) . '</pre>';
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
