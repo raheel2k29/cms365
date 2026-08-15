@@ -99,7 +99,6 @@ class QuoteController extends Controller
         }
         $validated['cc_emails'] = !empty($ccEmails) ? implode(', ', $ccEmails) : null;
 
-        $businessEntity = BusinessEntity::where('code', 'ESC')->first() ?? BusinessEntity::first();
 
         $fillData = $request->except('email_id');
         if ($request->filled('due_at')) {
@@ -109,7 +108,7 @@ class QuoteController extends Controller
 
         $quote = new Quote($fillData);
         $quote->quote_number = Quote::generateNumber();
-        $quote->business_entity_id = $businessEntity->id;
+        $quote->business_entity_id = auth()->user()->business_entity_id;
         $quote->assigned_to = auth()->id();
         $quote->status = 'new';
         $quote->save();
