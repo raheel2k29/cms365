@@ -62,6 +62,8 @@ class QuoteController extends Controller
         $companies = Company::orderBy('name')->get();
         $contacts = Contact::orderBy('name')->get();
         $quoteTypes = QuoteType::where('is_active', true)->get();
+        $vendors = \App\Models\Vendor::orderBy('name')->get();
+        $quoteStatuses = \App\Models\QuoteStatus::where('business_entity_id', auth()->user()->business_entity_id)->orderBy('order_index')->get();
         
         $emailId = $request->query('email_id');
         $email = null;
