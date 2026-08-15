@@ -68,10 +68,11 @@
                         </div>
                         <div>
                             <label class="form-label">Status</label>
-                            <select name="status" class="form-control">
-                                @php $statuses = ['new', 'in_review', 'rfq_sent', 'pricing_received', 'quote_prepared', 'quote_sent', 'won', 'lost', 'cancelled']; @endphp
-                                @foreach($statuses as $st)
-                                    <option value="{{ $st }}" {{ $quote->status == $st ? 'selected' : '' }}>{{ ucwords(str_replace('_', ' ', $st)) }}</option>
+                            <select name="status" class="form-control" style="background-color: {{ $quote->quoteStatus?->color ?? '#cbd5e1' }}20; border-color: {{ $quote->quoteStatus?->color ?? '#cbd5e1' }}">
+                                @foreach($quoteStatuses as $st)
+                                    <option value="{{ $st->name }}" {{ $quote->status == $st->name ? 'selected' : '' }} style="color: {{ $st->color }}">
+                                        {{ $st->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>

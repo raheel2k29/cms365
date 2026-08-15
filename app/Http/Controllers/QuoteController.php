@@ -73,7 +73,7 @@ class QuoteController extends Controller
             $email = \App\Models\Email::find($emailId);
         }
         
-        return view('quotes.create', compact('companies', 'contacts', 'quoteTypes', 'email'));
+        return view('quotes.create', compact('companies', 'contacts', 'quoteTypes', 'vendors', 'email', 'quoteStatuses'));
     }
 
     public function store(Request $request)
@@ -110,7 +110,10 @@ class QuoteController extends Controller
         $quote->quote_number = Quote::generateNumber();
         $quote->business_entity_id = auth()->user()->business_entity_id;
         $quote->assigned_to = auth()->id();
-        $quote->status = 'new';
+        
+        $firstStatus = \App\Models\QuoteStatus::where('business_entity_id', auth()->user()->business_entity_id)->orderBy('order_index')->first();
+        $quote->status = $firstStatus ? $firstStatus->name : 'New';
+        
         $quote->save();
 
         // If created from an email, link the email and the whole thread to this quote
@@ -163,8 +166,9 @@ class QuoteController extends Controller
         $contacts = Contact::orderBy('name')->get();
         $quoteTypes = QuoteType::where('is_active', true)->get();
         $vendors = \App\Models\Vendor::orderBy('name')->get();
+        $quoteStatuses = \App\Models\QuoteStatus::where('business_entity_id', auth()->user()->business_entity_id)->orderBy('order_index')->get();
         
-        return view('quotes.edit', compact('quote', 'companies', 'contacts', 'quoteTypes', 'vendors'));
+        return view('quotes.edit', compact('quote', 'companies', 'contacts', 'quoteTypes', 'vendors', 'quoteStatuses'));
     }
 
     public function update(Request $request, Quote $quote)
