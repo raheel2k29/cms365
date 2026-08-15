@@ -181,7 +181,7 @@ class QuoteController extends Controller
             'company_id'   => 'nullable|exists:companies,id',
             'contact_id'   => 'nullable|exists:contacts,id',
             'quote_type_id'=> 'nullable|exists:quote_types,id',
-            'status'       => 'nullable|string',
+            'quote_status_id'=> 'nullable|exists:quote_statuses,id',
             'items'        => 'nullable|array',
             'items.*.description' => 'nullable|string',
             'items.*.spec_sheet_url' => 'nullable|string',
@@ -207,15 +207,22 @@ class QuoteController extends Controller
             }
             
             $quote->fill($fillData);
-            if ($request->has('status') && $request->status !== $quote->status) {
-                $quote->status = $request->status;
+            if ($request->has('quote_status_id') && $request->quote_status_id != $quote->quote_status_id) {
+                $newStatus = \App\Models\QuoteStatus::find($request->quote_status_id);
+                $oldStatusObj = \App\Models\QuoteStatus::find($quote->quote_status_id);
+                $oldName = $oldStatusObj ? $oldStatusObj->name : 'Unknown';
+                $newName = $newStatus ? $newStatus->name : 'Unknown';
+                
+                $quote->quote_status_id = $request->quote_status_id;
+                $quote->status = $newName; // keep string status updated just in case
+                
                 $quote->activityLogs()->create([
                     'user_id' => auth()->id(),
                     'action'  => 'status_changed',
-                    'description' => "Status changed from {$oldStatus} to {$quote->status}."
+                    'description' => "Status changed from {$oldName} to {$newName}."
                 ]);
             }
-            
+            $quote->save();
             // Sync Items
             if ($request->has('items')) {
                 $quote->items()->delete(); // simplify by replacing

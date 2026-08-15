@@ -68,9 +68,9 @@
                         </div>
                         <div>
                             <label class="form-label">Status</label>
-                            <select name="status" class="form-control" style="background-color: {{ $quote->quoteStatus?->color ?? '#cbd5e1' }}20; border-color: {{ $quote->quoteStatus?->color ?? '#cbd5e1' }}">
+                            <select name="quote_status_id" class="form-control" style="background-color: {{ $quote->quoteStatus?->color ?? '#cbd5e1' }}20; border-color: {{ $quote->quoteStatus?->color ?? '#cbd5e1' }}">
                                 @foreach($quoteStatuses as $st)
-                                    <option value="{{ $st->name }}" {{ $quote->status == $st->name ? 'selected' : '' }} style="color: {{ $st->color }}">
+                                    <option value="{{ $st->id }}" {{ $quote->quote_status_id == $st->id ? 'selected' : '' }} style="color: {{ $st->color }}">
                                         {{ $st->name }}
                                     </option>
                                 @endforeach
