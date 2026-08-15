@@ -87,6 +87,18 @@ Route::get('/api/logs', function () {
     return '<pre>' . htmlspecialchars(substr($content, -5000)) . '</pre>';
 });
 
+Route::get('/api/fix-users', function () {
+    $entity = \App\Models\BusinessEntity::first();
+    if (!$entity) {
+        $entity = \App\Models\BusinessEntity::create([
+            'name' => 'Electric Supply Connections',
+            'code' => 'ESC'
+        ]);
+    }
+    $updated = \App\Models\User::whereNull('business_entity_id')->update(['business_entity_id' => $entity->id]);
+    return "Fixed $updated users!";
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard
