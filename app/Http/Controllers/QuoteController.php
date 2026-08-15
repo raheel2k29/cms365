@@ -145,8 +145,7 @@ class QuoteController extends Controller
     {
         $quote->load(['company', 'contact', 'items.vendor', 'emails.attachments', 'quoteStatus']);
         
-        $vendors = \App\Models\Vendor::where('business_entity_id', auth()->user()->business_entity_id)
-            ->where('active', true)
+        $vendors = \App\Models\Vendor::where('is_active', true)
             ->orderBy('name')
             ->get();
 
