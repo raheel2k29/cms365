@@ -23,25 +23,21 @@ class QuoteController extends Controller
 
     public function calendar()
     {
-        // Get all quotes that have a due date and are not closed/lost/cancelled
-        $quotes = Quote::with(['company', 'quoteType'])
+        // Get all quote statuses for this business entity
+        $quoteStatuses = \App\Models\QuoteStatus::where('business_entity_id', auth()->user()->business_entity_id)
+            ->orderBy('order_index')
+            ->get();
+            
+        // Get all quotes that have a due date
+        $quotes = Quote::with(['company', 'quoteType', 'quoteStatus'])
+            ->where('business_entity_id', auth()->user()->business_entity_id)
             ->whereNotNull('due_at')
-            ->whereNotIn('status', ['won', 'lost', 'cancelled'])
             ->get();
 
         // Format for FullCalendar
         $events = $quotes->map(function($quote) {
-            // Pick a color based on status
-            $color = '#2563eb'; // default blue
-            switch($quote->status) {
-                case 'draft': $color = '#94a3b8'; break; // gray
-                case 'in_review': $color = '#7c3aed'; break; // purple
-                case 'rfq_sent': 
-                case 'pricing_received': 
-                case 'quote_prepared': $color = '#0891b2'; break; // teal
-                case 'quote_sent': 
-                case 'submitted': $color = '#d97706'; break; // warning
-            }
+            $color = $quote->quoteStatus ? $quote->quoteStatus->color : '#2563eb';
+            $statusName = $quote->quoteStatus ? $quote->quoteStatus->name : $quote->status;
 
             return [
                 'id' => $quote->id,
@@ -51,14 +47,14 @@ class QuoteController extends Controller
                 'backgroundColor' => $color,
                 'borderColor' => $color,
                 'extendedProps' => [
-                    'status' => $quote->status,
+                    'status' => $statusName,
                     'quote_number' => $quote->quote_number,
                     'amount' => '$' . number_format($quote->total_sell, 2)
                 ]
             ];
         });
 
-        return view('quotes.calendar', compact('events'));
+        return view('quotes.calendar', compact('events', 'quoteStatuses'));
     }
 
     public function create(Request $request)

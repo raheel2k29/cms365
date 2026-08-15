@@ -81,10 +81,9 @@
 <div style="max-width: 1200px; margin: 0 auto;">
     
     <div class="legend">
-        <div class="legend-item"><div class="legend-color" style="background:#94a3b8"></div> Draft</div>
-        <div class="legend-item"><div class="legend-color" style="background:#7c3aed"></div> In Review</div>
-        <div class="legend-item"><div class="legend-color" style="background:#0891b2"></div> RFQ / Prep</div>
-        <div class="legend-item"><div class="legend-color" style="background:#d97706"></div> Sent / Submitted</div>
+        @foreach($quoteStatuses as $status)
+            <div class="legend-item"><div class="legend-color" style="background:{{ $status->color }}"></div> {{ $status->name }}</div>
+        @endforeach
     </div>
 
     <div id="calendar"></div>
@@ -111,7 +110,7 @@
                 // Add a simple tooltip
                 let props = info.event.extendedProps;
                 let title = info.event.title + '\n' 
-                          + 'Status: ' + props.status.replace('_', ' ').toUpperCase() + '\n'
+                          + 'Status: ' + props.status + '\n'
                           + 'Amount: ' + props.amount;
                 info.el.setAttribute('title', title);
             },
