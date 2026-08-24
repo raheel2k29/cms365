@@ -57,42 +57,121 @@ class CatalogController extends Controller
             }
         }
         
-        $count = 0;
-        $isFirstRow = true;
+        $headerIndexMap = [
+            'item_number' => null,
+            'description' => null,
+            'price' => null,
+            'cost' => null,
+            'sell' => null,
+            'category' => null,
+            'unit' => null,
+        ];
         
-        foreach ($rows as $data) {
-            // Skip if empty row
-            if (empty(array_filter($data))) continue;
+        $headerRowFound = false;
+        $dataRows = [];
+        
+        foreach ($rows as $row) {
+            if (empty(array_filter($row))) continue;
             
-            $col1 = isset($data[0]) ? strtolower(trim($data[0])) : '';
-            $col2 = isset($data[1]) ? strtolower(trim($data[1])) : '';
-            
-            // If it's the first row and looks like a header, skip it
-            if ($isFirstRow) {
-                $isFirstRow = false;
-                if (str_contains($col1, 'item') || str_contains($col1, 'sku') || str_contains($col2, 'desc')) {
+            if (!$headerRowFound) {
+                $isHeader = false;
+                foreach ($row as $index => $val) {
+                    if ($val === null) continue;
+                    $valLower = strtolower(trim($val));
+                    
+                    if (in_array($valLower, ['item', 'item number', 'item_number', 'sku', 'product number', 'product_number', 'part number', 'part_number', 'part #', 'model', 'model number'])) {
+                        $headerIndexMap['item_number'] = $index;
+                        $isHeader = true;
+                    } elseif (in_array($valLower, ['description', 'desc', 'item description', 'product description', 'name'])) {
+                        $headerIndexMap['description'] = $index;
+                        $isHeader = true;
+                    } elseif (in_array($valLower, ['price', 'sell price', 'sell_price', 'price each', 'sell', 'list price', 'retail price', 'price list'])) {
+                        $headerIndexMap['price'] = $index;
+                        $isHeader = true;
+                    } elseif (in_array($valLower, ['cost', 'cost price', 'cost_price', 'net cost', 'dealer price', 'net price'])) {
+                        $headerIndexMap['cost'] = $index;
+                        $isHeader = true;
+                    } elseif (in_array($valLower, ['category', 'catagory', 'group', 'class', 'type'])) {
+                        $headerIndexMap['category'] = $index;
+                        $isHeader = true;
+                    } elseif (in_array($valLower, ['unit', 'uom', 'ea', 'unit of measure'])) {
+                        $headerIndexMap['unit'] = $index;
+                        $isHeader = true;
+                    }
+                }
+                
+                if ($isHeader) {
+                    $headerRowFound = true;
                     continue;
                 }
             }
-
-            // Assuming format: Item Number, Description, Cost, Sell, Unit
-            // Some people might only have 1 column (description), let's be flexible
-            $itemNum = isset($data[0]) ? trim($data[0]) : null;
-            $desc = isset($data[1]) ? trim($data[1]) : null;
             
-            // If they only provided 1 column, assume it's description
-            if (!$desc && $itemNum) {
-                $desc = $itemNum;
-                $itemNum = null;
+            if ($headerRowFound) {
+                $dataRows[] = $row;
+            } else {
+                $dataRows[] = $row;
+            }
+        }
+        
+        if (!$headerRowFound) {
+            $headerIndexMap = [
+                'item_number' => 0,
+                'description' => 1,
+                'cost' => 2,
+                'sell' => 3,
+                'unit' => 4,
+                'price' => null,
+                'category' => null,
+            ];
+        }
+        
+        $currentCategory = '';
+        $count = 0;
+        
+        foreach ($dataRows as $data) {
+            if (empty(array_filter($data))) continue;
+            
+            if ($headerIndexMap['category'] !== null && isset($data[$headerIndexMap['category']]) && trim($data[$headerIndexMap['category']]) !== '') {
+                $currentCategory = trim($data[$headerIndexMap['category']]);
             }
             
-            if (!$desc) continue;
-
-            $cost = isset($data[2]) ? floatval(preg_replace('/[^0-9.]/', '', $data[2])) : 0;
-            $sell = isset($data[3]) ? floatval(preg_replace('/[^0-9.]/', '', $data[3])) : 0;
-            $unit = isset($data[4]) ? trim($data[4]) : null;
-
-            // Create or update based on item number or description if item number is missing
+            $itemNum = null;
+            if ($headerIndexMap['item_number'] !== null && isset($data[$headerIndexMap['item_number']])) {
+                $itemNum = trim($data[$headerIndexMap['item_number']]);
+            }
+            
+            $desc = null;
+            if ($headerIndexMap['description'] !== null && isset($data[$headerIndexMap['description']])) {
+                $desc = trim($data[$headerIndexMap['description']]);
+            }
+            
+            if ($itemNum && !$desc) {
+                $desc = ($currentCategory ? $currentCategory . ' - ' : '') . $itemNum;
+            }
+            
+            if (!$desc && !$itemNum) continue;
+            
+            $cost = 0;
+            $sell = 0;
+            
+            if ($headerIndexMap['cost'] !== null && isset($data[$headerIndexMap['cost']])) {
+                $cost = floatval(preg_replace('/[^0-9.]/', '', $data[$headerIndexMap['cost']]));
+            }
+            if ($headerIndexMap['sell'] !== null && isset($data[$headerIndexMap['sell']])) {
+                $sell = floatval(preg_replace('/[^0-9.]/', '', $data[$headerIndexMap['sell']]));
+            }
+            
+            if ($headerIndexMap['price'] !== null && isset($data[$headerIndexMap['price']])) {
+                $price = floatval(preg_replace('/[^0-9.]/', '', $data[$headerIndexMap['price']]));
+                if ($cost == 0) $cost = $price;
+                if ($sell == 0) $sell = $price;
+            }
+            
+            $unit = null;
+            if ($headerIndexMap['unit'] !== null && isset($data[$headerIndexMap['unit']])) {
+                $unit = trim($data[$headerIndexMap['unit']]);
+            }
+            
             if ($itemNum) {
                 $item = VendorItem::firstOrNew([
                     'vendor_id' => $vendorId,
@@ -104,7 +183,7 @@ class CatalogController extends Controller
                     'description' => $desc
                 ]);
             }
-
+            
             $item->description = $desc;
             $item->cost_price = $cost;
             $item->sell_price = $sell;
