@@ -98,7 +98,7 @@
                             <div style="display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
                                 <div style="position:relative">
                                     <label style="font-size:11px;color:var(--text-muted);font-weight:600">Description</label>
-                                    <input type="text" x-model="item.description" :name="`items[${index}][description]`" class="form-control" placeholder="Item description" 
+                                    <input type="text" x-model="item.description" :name="`items[${index}][description]`" class="form-control" placeholder="Search catalog or type description..." 
                                            @input.debounce.500ms="searchCatalog(item)"
                                            @click.away="item.showResults = false"
                                            @focus="item.showResults = item.searchResults.length > 0">
